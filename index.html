@@ -27,25 +27,20 @@
             }
         }
     </script>
-    <!-- Chart.js for interactive graphs -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FontAwesome for icons -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
+            background-color: #f1f5f9;
         }
-        .phone-frame {
-            max-width: 420px;
-            height: 880px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-        /* Custom scrollbar for clean look */
+        /* Custom Scrollbar */
         ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
+            width: 6px;
+            height: 6px;
         }
         ::-webkit-scrollbar-thumb {
             background: #cbd5e1;
@@ -53,603 +48,629 @@
         }
     </style>
 </head>
-<body class="bg-slate-200 flex items-center justify-center min-h-screen p-0 sm:p-4">
+<body class="min-h-screen flex flex-col md:flex-row text-slate-800">
 
-    <div class="phone-frame w-full bg-white sm:rounded-[40px] flex flex-col relative overflow-hidden border border-slate-300">
-        
-        <!-- iOS Status Bar Simulation -->
-        <div class="bg-white px-6 pt-3 pb-2 flex justify-between items-center text-xs font-semibold text-slate-800 z-30 shrink-0">
-            <span>9:41</span>
-            <div class="flex items-center space-x-2 text-slate-700">
-                <i class="fa-solid fa-signal text-[10px]"></i>
-                <i class="fa-solid fa-wifi text-[10px]"></i>
-                <div class="flex items-center space-x-0.5">
-                    <span class="text-[10px]">100%</span>
-                    <i class="fa-solid fa-battery-full text-xs text-teal-700"></i>
-                </div>
+    <!-- ================= DESKTOP SIDEBAR (Oculto en Celular) ================= -->
+    <aside class="hidden md:flex flex-col w-64 bg-teal-950 text-white shrink-0 border-r border-teal-900 shadow-xl">
+        <div class="p-5 flex items-center space-x-3 border-b border-teal-900/80">
+            <div class="bg-teal-700 p-2.5 rounded-xl text-white shadow-md">
+                <i class="fa-solid fa-snowflake text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-sm leading-tight text-white">Sonda LoRa</h1>
+                <p class="text-[10px] text-teal-300">Monitoreo Agrícola de Heladas</p>
             </div>
         </div>
 
-        <!-- ================= APP SCREENS CONTAINER ================= -->
-        <div id="app-container" class="flex-1 overflow-y-auto relative pb-24">
+        <nav class="flex-1 p-4 space-y-1.5 text-xs font-medium">
+            <button onclick="switchTab('home')" class="sidebar-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-teal-800 text-white shadow-sm transition text-left" data-tab="home">
+                <i class="fa-solid fa-house w-5 text-teal-300"></i>
+                <span>Mi explotación</span>
+            </button>
+            <button onclick="switchTab('sensors')" class="sidebar-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-teal-200 hover:bg-teal-900 transition text-left" data-tab="sensors">
+                <i class="fa-solid fa-tower-cell w-5 text-teal-300"></i>
+                <span>Sensores LoRa</span>
+            </button>
+            <button onclick="switchTab('limits')" class="sidebar-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-teal-200 hover:bg-teal-900 transition text-left" data-tab="limits">
+                <i class="fa-solid fa-sliders w-5 text-teal-300"></i>
+                <span>Configurar Alertas</span>
+            </button>
+            <button onclick="switchTab('notifications')" class="sidebar-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-teal-200 hover:bg-teal-900 transition text-left relative" data-tab="notifications">
+                <i class="fa-regular fa-bell w-5 text-teal-300"></i>
+                <span>Notificaciones</span>
+                <span class="absolute right-3 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            <button onclick="switchTab('account')" class="sidebar-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-teal-200 hover:bg-teal-900 transition text-left" data-tab="account">
+                <i class="fa-regular fa-user w-5 text-teal-300"></i>
+                <span>Mi cuenta / Gateway</span>
+            </button>
+        </nav>
 
-            <!-- ================= SCREEN 1: MI EXPLOTACIÓN (DASHBOARD HELADAS) ================= -->
-            <div id="screen-home" class="screen p-4 flex flex-col space-y-4">
-                
-                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-2xl border border-slate-200">
-                    <div class="flex items-center space-x-2">
-                        <span class="text-xs text-slate-500 font-medium">Mi explotación</span>
-                        <div class="flex items-center space-x-1 font-bold text-teal-800 text-sm cursor-pointer bg-white px-2.5 py-1 rounded-xl shadow-sm border border-slate-200" onclick="togglePlotModal()">
-                            <span id="current-plot-name">Mi Parcela (Sector Norte)</span>
-                            <i class="fa-solid fa-chevron-down text-xs text-teal-600"></i>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="refreshData()" class="p-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 shadow-sm transition">
-                            <i class="fa-solid fa-rotate text-sm text-teal-700"></i>
-                        </button>
-                        <button onclick="switchScreen('screen-limits')" class="p-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 shadow-sm transition" title="Configurar Límites y Alertas">
-                            <i class="fa-solid fa-gear text-sm text-teal-700"></i>
-                        </button>
+        <div class="p-4 border-t border-teal-900/80 text-[11px] text-teal-400">
+            <div class="flex items-center space-x-2">
+                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <span>Pasarela 4G Online (ESP32)</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ================= MAIN CONTENT WRAPPER ================= -->
+    <div class="flex-1 flex flex-col min-w-0 pb-20 md:pb-0">
+
+        <!-- Top Header for Mobile & Desktop -->
+        <header class="bg-white border-b border-slate-200 px-4 md:px-8 py-3.5 flex justify-between items-center shadow-xs sticky top-0 z-30">
+            <div class="flex items-center space-x-3">
+                <div class="md:hidden bg-teal-700 text-white p-2 rounded-xl">
+                    <i class="fa-solid fa-snowflake"></i>
+                </div>
+                <div>
+                    <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">Ubicación Activa</span>
+                    <div class="flex items-center space-x-2 font-bold text-teal-900 text-sm cursor-pointer" onclick="togglePlotModal()">
+                        <span id="current-plot-name">Mi Parcela (Sector Norte)</span>
+                        <i class="fa-solid fa-chevron-down text-xs text-teal-600"></i>
                     </div>
                 </div>
+            </div>
 
-                <div class="bg-gradient-to-r from-teal-900 to-teal-800 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden">
-                    <div class="absolute -right-6 -bottom-6 opacity-10 text-8xl">
+            <div class="flex items-center space-x-3">
+                <button onclick="refreshData()" class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 transition shadow-xs flex items-center space-x-1.5 text-xs font-semibold">
+                    <i class="fa-solid fa-rotate text-teal-700"></i>
+                    <span class="hidden sm:inline">Sincronizar</span>
+                </button>
+                <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-full bg-teal-700 text-white font-bold flex items-center justify-center text-xs shadow-xs">
+                        AG
+                    </div>
+                    <span class="text-xs font-bold text-slate-700 hidden lg:inline">Admin Campo</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Views Container -->
+        <main class="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto">
+
+            <!-- ================= VIEW 1: MI EXPLOTACIÓN (DASHBOARD PRINCIPAL) ================= -->
+            <div id="view-home" class="view-section space-y-6">
+                
+                <!-- Alert Banner -->
+                <div class="bg-gradient-to-r from-teal-900 to-teal-800 rounded-2xl p-5 text-white shadow-md relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="absolute -right-6 -bottom-6 opacity-10 text-9xl">
                         <i class="fa-solid fa-snowflake"></i>
                     </div>
-                    <div class="flex items-center space-x-3 mb-2">
-                        <div class="bg-teal-700/80 p-2.5 rounded-xl border border-teal-600">
-                            <i class="fa-solid fa-snowflake text-white text-lg"></i>
+                    <div class="flex items-start space-x-4 z-10">
+                        <div class="bg-teal-700/80 p-3 rounded-xl border border-teal-600 shrink-0">
+                            <i class="fa-solid fa-snowflake text-white text-xl"></i>
                         </div>
                         <div>
-                            <h2 class="font-bold text-base leading-tight">Riesgo de Heladas</h2>
-                            <p class="text-xs text-teal-200">Alerta Activa - Sonda LoRa #04</p>
+                            <div class="flex items-center space-x-2">
+                                <h2 class="font-bold text-base md:text-lg">Control de Riesgo de Heladas</h2>
+                                <span class="bg-red-500/20 text-red-200 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-500/30 animate-pulse">ALERTA ACTIVA</span>
+                            </div>
+                            <p class="text-xs text-teal-200 mt-1 max-w-2xl leading-relaxed">
+                                Sensores SHT30 LoRa reportan temperatura húmeda bajo 0°C en las últimas 12 horas. Riesgo severo para brotes y floración.
+                            </p>
                         </div>
                     </div>
-                    <p class="text-xs text-teal-100 mt-2 leading-relaxed">
-                        Control crítico del riesgo de helada. Temperatura húmeda bajo 0°C en las últimas 12 horas.
-                    </p>
+                    <button onclick="switchTab('limits')" class="z-15 px-4 py-2.5 bg-white text-teal-900 rounded-xl font-bold text-xs hover:bg-teal-50 transition shadow-md shrink-0">
+                        Ver Umbrales
+                    </button>
                 </div>
 
-                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-sm">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">28/03/2025 - 03:52</span>
-                        <span class="text-[10px] bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full animate-pulse">CRÍTICO</span>
+                <!-- Current Reading Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Wet Bulb -->
+                    <div onclick="switchTab('sensors')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs cursor-pointer hover:border-teal-500 transition group">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold text-slate-500">Temperatura Húmeda</span>
+                            <span class="w-3 h-3 rounded-full bg-indigo-600 inline-block group-hover:scale-110 transition"></span>
+                        </div>
+                        <div class="text-3xl font-bold text-slate-900 mb-1" id="home-wet-temp">-1,6°C</div>
+                        <div class="text-[11px] text-slate-400 flex items-center space-x-1">
+                            <i class="fa-solid fa-arrow-down text-indigo-600"></i>
+                            <span>Punto crítico alcanzado a las 03:52</span>
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
-                        <!-- Wet Bulb -->
-                        <div onclick="switchScreen('screen-sensor-detail')" class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:border-teal-500 transition">
-                            <div class="flex items-center space-x-1.5 mb-1">
-                                <span class="w-2.5 h-2.5 rounded-full bg-indigo-600 inline-block"></span>
-                                <span class="text-xs font-semibold text-slate-600">Temperatura húmeda</span>
-                            </div>
-                            <div class="text-2xl font-bold text-slate-800" id="home-wet-temp">-1,6°C</div>
+                    <!-- Dry Bulb -->
+                    <div onclick="switchTab('sensors')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs cursor-pointer hover:border-teal-500 transition group">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold text-slate-500">Temperatura Seca</span>
+                            <span class="w-3 h-3 rounded-full bg-teal-600 inline-block group-hover:scale-110 transition"></span>
                         </div>
+                        <div class="text-3xl font-bold text-slate-900 mb-1" id="home-dry-temp">-2,6°C</div>
+                        <div class="text-[11px] text-slate-400 flex items-center space-x-1">
+                            <i class="fa-solid fa-temperature-arrow-down text-teal-600"></i>
+                            <span>Descenso rápido nocturno</span>
+                        </div>
+                    </div>
 
-                        <!-- Dry Bulb -->
-                        <div onclick="switchScreen('screen-sensor-detail')" class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:border-teal-500 transition">
-                            <div class="flex items-center space-x-1.5 mb-1">
-                                <span class="w-2.5 h-2.5 rounded-full bg-teal-600 inline-block"></span>
-                                <span class="text-xs font-semibold text-slate-600">Temperatura seca</span>
-                            </div>
-                            <div class="text-2xl font-bold text-slate-800" id="home-dry-temp">-2,6°C</div>
+                    <!-- Dew Point -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold text-slate-500">Punto de Rocío</span>
+                            <i class="fa-solid fa-droplet text-teal-600"></i>
+                        </div>
+                        <div class="text-3xl font-bold text-slate-900 mb-1">-3.4°C</div>
+                        <div class="text-[11px] text-slate-400">Calculado por SHT30 LoRa</div>
+                    </div>
+
+                    <!-- Battery / Node Status -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold text-slate-500">Batería & Señal</span>
+                            <i class="fa-solid fa-tower-broadcast text-teal-600"></i>
+                        </div>
+                        <div class="text-3xl font-bold text-slate-900 mb-1">100%</div>
+                        <div class="text-[11px] text-emerald-600 font-semibold flex items-center space-x-1">
+                            <i class="fa-solid fa-signal"></i>
+                            <span>RSSI: -74 dBm (Excelente)</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-xs font-bold text-slate-700">Evolución térmica (Últimas horas)</span>
-                        <span class="text-[10px] text-slate-400">LoRa Node Gateway</span>
+                <!-- Main Chart Panel -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm">Evolución Térmica del Riesgo de Helada</h3>
+                            <p class="text-xs text-slate-400">Comparativa de temperatura seca vs húmeda registrada en nodos LoRa</p>
+                        </div>
+                        <!-- Time Selector -->
+                        <div class="flex space-x-1 bg-slate-100 p-1 rounded-xl text-xs font-medium">
+                            <button onclick="updateHomeChart('1h')" class="px-3 py-1.5 rounded-lg bg-white shadow-xs text-teal-800 font-bold transition time-btn-home" data-time="1h">1h</button>
+                            <button onclick="updateHomeChart('4h')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-white/50 transition time-btn-home" data-time="4h">4h</button>
+                            <button onclick="updateHomeChart('8h')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-white/50 transition time-btn-home" data-time="8h">8h</button>
+                            <button onclick="updateHomeChart('24h')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-white/50 transition time-btn-home" data-time="24h">24h</button>
+                        </div>
                     </div>
 
-                    <!-- Time Selector Buttons -->
-                    <div class="flex space-x-1 mb-3 bg-slate-100 p-1 rounded-xl text-xs font-medium justify-center">
-                        <button onclick="updateHomeChart('1h')" class="flex-1 py-1 rounded-lg bg-white shadow-sm text-teal-800 font-bold transition time-btn-home" data-time="1h">1h</button>
-                        <button onclick="updateHomeChart('2h')" class="flex-1 py-1 rounded-lg text-slate-600 hover:bg-white/50 transition time-btn-home" data-time="2h">2h</button>
-                        <button onclick="updateHomeChart('3h')" class="flex-1 py-1 rounded-lg text-slate-600 hover:bg-white/50 transition time-btn-home" data-time="3h">3h</button>
-                        <button onclick="updateHomeChart('4h')" class="flex-1 py-1 rounded-lg text-slate-600 hover:bg-white/50 transition time-btn-home" data-time="4h">4h</button>
-                        <button onclick="updateHomeChart('8h')" class="flex-1 py-1 rounded-lg text-slate-600 hover:bg-white/50 transition time-btn-home" data-time="8h">8h</button>
-                    </div>
-
-                    <!-- Chart Canvas -->
-                    <div class="h-48 relative w-full">
+                    <div class="h-72 md:h-80 relative w-full">
                         <canvas id="homeFrostChart"></canvas>
                     </div>
-
-                    <div class="mt-3 text-center">
-                        <button onclick="switchScreen('screen-sensor-detail')" class="text-xs font-semibold text-teal-700 hover:underline inline-flex items-center space-x-1">
-                            <span>Ver los datos en detalle</span>
-                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-                    <div class="text-xs font-bold text-slate-700 mb-3">Ahora en campo</div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 flex items-center space-x-3 shadow-sm">
-                            <div class="bg-indigo-50 p-2.5 rounded-xl text-indigo-600">
-                                <i class="fa-solid fa-temperature-low text-base"></i>
-                            </div>
-                            <div>
-                                <div class="text-[10px] font-bold text-indigo-600 uppercase">HUMEDA</div>
-                                <div class="text-base font-bold text-slate-800">-1,6°C</div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 flex items-center space-x-3 shadow-sm">
-                            <div class="bg-teal-50 p-2.5 rounded-xl text-teal-600">
-                                <i class="fa-solid fa-temperature-arrow-down text-base"></i>
-                            </div>
-                            <div>
-                                <div class="text-[10px] font-bold text-teal-600 uppercase">SECO</div>
-                                <div class="text-base font-bold text-slate-800">-2,6°C</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-2 text-right">
-                        <span class="text-[10px] text-slate-400"><i class="fa-regular fa-clock"></i> hace 2 min (LoRa RF)</span>
-                    </div>
                 </div>
 
             </div>
 
 
-            <!-- ================= SCREEN 2: SENSORES / DETALLE (temp-RH / Chambre 3) ================= -->
-            <div id="screen-sensors" class="screen hidden p-4 flex flex-col space-y-4">
-                
-                <!-- Header Navigation -->
-                <div class="flex items-center justify-between pb-2 border-b border-slate-200">
-                    <button onclick="switchScreen('screen-home')" class="flex items-center space-x-1 text-teal-700 font-semibold text-sm">
-                        <i class="fa-solid fa-arrow-left"></i>
-                        <span>Atrás</span>
-                    </button>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="switchScreen('screen-limits')" class="p-2 bg-slate-100 rounded-full text-slate-700 hover:bg-slate-200 transition">
-                            <i class="fa-solid fa-gear text-teal-700"></i>
-                        </button>
-                        <button class="p-2 bg-slate-100 rounded-full text-slate-700 hover:bg-slate-200 transition">
-                            <i class="fa-solid fa-bars text-teal-700"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="flex justify-between items-start">
+            <!-- ================= VIEW 2: SENSORES LoRa (SHT30 NODES) ================= -->
+            <div id="view-sensors" class="view-section hidden space-y-6">
+                <div class="flex justify-between items-center">
                     <div>
-                        <h1 class="text-xl font-bold text-slate-800">temp-RH</h1>
-                        <p class="text-xs text-slate-500">Chambre 3 / Sonda SHT30 LoRa</p>
+                        <h2 class="text-lg font-bold text-slate-800">Sensores y Nodos LoRa Activos</h2>
+                        <p class="text-xs text-slate-500">Estado de telemetría, batería 18650, RSSI y GPS en campo.</p>
                     </div>
-                    <div class="flex items-center space-x-1.5 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full text-emerald-700 text-xs font-semibold">
-                        <i class="fa-solid fa-battery-full"></i>
-                        <span>100%</span>
-                    </div>
+                    <button onclick="showMsg('Escaneando nuevos nodos LoRa en la frecuencia 915MHz...')" class="px-4 py-2 bg-teal-700 text-white rounded-xl text-xs font-bold hover:bg-teal-800 transition shadow-xs">
+                        + Añadir Nodo SHT30
+                    </button>
                 </div>
 
-                <!-- Last communication status -->
-                <div class="flex items-center space-x-2 text-xs text-slate-400">
-                    <i class="fa-solid fa-rotate-right animate-spin text-teal-600"></i>
-                    <span>10 minutes desde la última comunicación</span>
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Sensor Card 1 -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-teal-100 text-teal-800 p-3 rounded-xl">
+                                    <i class="fa-solid fa-temperature-half text-lg"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-sm">Nodo LoRa #04 (Sector Norte)</h3>
+                                    <span class="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full">Activo</span>
+                                </div>
+                            </div>
+                            <span class="text-xs font-bold text-slate-500">SHT30</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-100">
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">Temperatura Húmeda</span>
+                                <span class="font-bold text-slate-800 text-base">-1,6°C</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">Temperatura Seca</span>
+                                <span class="font-bold text-slate-800 text-base">-2,6°C</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center text-[11px] text-slate-500 pt-2 border-t border-slate-100">
+                            <span><i class="fa-solid fa-battery-full text-emerald-600"></i> 100% (Solar)</span>
+                            <span><i class="fa-solid fa-signal text-teal-600"></i> -72 dBm</span>
+                            <span><i class="fa-solid fa-location-dot text-red-500"></i> GPS Fix</span>
+                        </div>
+                    </div>
 
-                <!-- Sensor Main Reading Box -->
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="bg-teal-700 text-white p-3 rounded-2xl shadow-md">
-                            <i class="fa-solid fa-temperature-half text-xl"></i>
+                    <!-- Sensor Card 2 -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-teal-100 text-teal-800 p-3 rounded-xl">
+                                    <i class="fa-solid fa-temperature-half text-lg"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-sm">Nodo LoRa #02 (Sur Manzanos)</h3>
+                                    <span class="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full">Activo</span>
+                                </div>
+                            </div>
+                            <span class="text-xs font-bold text-slate-500">SHT30</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-100">
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">Temperatura Húmeda</span>
+                                <span class="font-bold text-slate-800 text-base">0.4°C</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">Temperatura Seca</span>
+                                <span class="font-bold text-slate-800 text-base">1.2°C</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center text-[11px] text-slate-500 pt-2 border-t border-slate-100">
+                            <span><i class="fa-solid fa-battery-three-quarters text-emerald-600"></i> 88%</span>
+                            <span><i class="fa-solid fa-signal text-teal-600"></i> -81 dBm</span>
+                            <span><i class="fa-solid fa-location-dot text-red-500"></i> GPS Fix</span>
+                        </div>
+                    </div>
+
+                    <!-- Sensor Card 3 -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-teal-100 text-teal-800 p-3 rounded-xl">
+                                    <i class="fa-solid fa-temperature-half text-lg"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-sm">Nodo LoRa #01 (Viñedo)</h3>
+                                    <span class="text-[10px] bg-amber-100 text-amber-800 font-semibold px-2 py-0.5 rounded-full">En reposo</span>
+                                </div>
+                            </div>
+                            <span class="text-xs font-bold text-slate-500">SHT30</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-100">
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">Temperatura Húmeda</span>
+                                <span class="font-bold text-slate-800 text-base">2.1°C</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">Temperatura Seca</span>
+                                <span class="font-bold text-slate-800 text-base">3.5°C</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center text-[11px] text-slate-500 pt-2 border-t border-slate-100">
+                            <span><i class="fa-solid fa-battery-full text-emerald-600"></i> 95%</span>
+                            <span><i class="fa-solid fa-signal text-teal-600"></i> -68 dBm</span>
+                            <span><i class="fa-solid fa-location-dot text-red-500"></i> GPS Fix</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ================= VIEW 3: CONFIGURACIÓN DE LÍMITES Y ALERTAS ================= -->
+            <div id="view-limits" class="view-section hidden space-y-6 max-w-2xl mx-auto">
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-6">
+                    <div class="flex items-start space-x-3 border-b border-slate-200 pb-4">
+                        <div class="bg-teal-100 p-3 rounded-xl text-teal-800">
+                            <i class="fa-solid fa-sliders text-xl"></i>
                         </div>
                         <div>
-                            <span class="text-xs text-slate-400 block font-medium">Temperatura Actual</span>
-                            <span class="text-xs font-semibold text-teal-700">Sensor Activo LoRa</span>
+                            <h2 class="font-bold text-base text-slate-800">Establezca los límites para generar alertas</h2>
+                            <p class="text-xs text-slate-500 mt-0.5">Los umbrales se aplican a los nodos LoRa SHT30 para activar sirenas o avisos 4G.</p>
                         </div>
                     </div>
-                    <div class="text-2xl font-bold text-slate-800" id="detail-current-val">22.0 °C</div>
+
+                    <div class="space-y-4">
+                        <!-- Alarma Temperatura -->
+                        <div class="relative pl-4 border-l-4 border-teal-700 space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa-solid fa-temperature-low text-teal-700"></i>
+                                <span class="text-xs font-bold text-slate-800 uppercase">Alarma Temperatura (Crítico Helada)</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 text-xs">
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center">
+                                    <span class="text-slate-400">Límite inferior</span>
+                                    <div class="flex items-center space-x-1">
+                                        <input type="number" id="limit-temp-min" value="2" class="w-14 text-right font-bold text-slate-800 bg-transparent focus:outline-none">
+                                        <span class="font-bold text-slate-700">°C</span>
+                                    </div>
+                                </div>
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center">
+                                    <span class="text-slate-400">Límite superior</span>
+                                    <div class="flex items-center space-x-1">
+                                        <input type="number" id="limit-temp-max" value="35" class="w-14 text-right font-bold text-slate-800 bg-transparent focus:outline-none">
+                                        <span class="font-bold text-slate-700">°C</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Advertencia Temperatura -->
+                        <div class="relative pl-4 border-l-4 border-teal-500 space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa-solid fa-triangle-exclamation text-teal-600"></i>
+                                <span class="text-xs font-bold text-slate-800 uppercase">Advertencia Temperatura</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 text-xs">
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center">
+                                    <span class="text-slate-400">Límite inferior</span>
+                                    <div class="flex items-center space-x-1">
+                                        <input type="number" id="limit-warn-min" value="4" class="w-14 text-right font-bold text-slate-800 bg-transparent focus:outline-none">
+                                        <span class="font-bold text-slate-700">°C</span>
+                                    </div>
+                                </div>
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center">
+                                    <span class="text-slate-400">Límite superior</span>
+                                    <div class="flex items-center space-x-1">
+                                        <input type="number" id="limit-warn-max" value="29" class="w-14 text-right font-bold text-slate-800 bg-transparent focus:outline-none">
+                                        <span class="font-bold text-slate-700">°C</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Humedad Relativa -->
+                        <div class="relative pl-4 border-l-4 border-indigo-600 space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa-solid fa-droplet text-indigo-600"></i>
+                                <span class="text-xs font-bold text-slate-800 uppercase">Alarma Humedad Relativa</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 text-xs">
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center">
+                                    <span class="text-slate-400">Límite inferior</span>
+                                    <div class="flex items-center space-x-1">
+                                        <input type="number" id="limit-hum-min" value="50" class="w-14 text-right font-bold text-slate-800 bg-transparent focus:outline-none">
+                                        <span class="font-bold text-slate-700">%</span>
+                                    </div>
+                                </div>
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center">
+                                    <span class="text-slate-400">Límite superior</span>
+                                    <div class="flex items-center space-x-1">
+                                        <input type="number" id="limit-hum-max" value="75" class="w-14 text-right font-bold text-slate-800 bg-transparent focus:outline-none">
+                                        <span class="font-bold text-slate-700">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-200">
+                        <button onclick="resetLimits()" class="py-3 px-4 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition shadow-xs">
+                            Restaurar Valores
+                        </button>
+                        <button onclick="saveLimits()" class="py-3 px-4 rounded-xl bg-teal-700 text-white text-xs font-bold hover:bg-teal-800 transition shadow-md">
+                            Validar y Guardar
+                        </button>
+                    </div>
                 </div>
-
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-                    <!-- Period Selector Tabs -->
-                    <div class="grid grid-cols-5 gap-1 bg-slate-100 p-1 rounded-xl text-xs font-medium text-center mb-4">
-                        <button onclick="updateDetailPeriod('1h')" class="py-1 rounded-lg text-slate-600 hover:bg-white transition time-btn-detail" data-period="1h">1h</button>
-                        <button onclick="updateDetailPeriod('12h')" class="py-1 rounded-lg text-slate-600 hover:bg-white transition time-btn-detail" data-period="12h">12h</button>
-                        <button onclick="updateDetailPeriod('24h')" class="py-1 rounded-lg bg-teal-700 text-white shadow-sm font-bold transition time-btn-detail" data-period="24h">24h</button>
-                        <button onclick="updateDetailPeriod('48h')" class="py-1 rounded-lg text-slate-600 hover:bg-white transition time-btn-detail" data-period="48h">48h</button>
-                        <button onclick="updateDetailPeriod('Sem')" class="py-1 rounded-lg text-slate-600 hover:bg-white transition time-btn-detail" data-period="Sem">Sem...</button>
-                    </div>
-
-                    <!-- Limit lines legend -->
-                    <div class="flex justify-between text-[10px] text-slate-500 mb-2 px-1">
-                        <span class="text-red-600 font-semibold">— Alerta Superior (30°C)</span>
-                        <span class="text-amber-500 font-semibold">--- Advertencia (25°C)</span>
-                        <span class="text-red-600 font-semibold">— Alerta Inferior (15°C)</span>
-                    </div>
-
-                    <div class="h-56 relative w-full">
-                        <canvas id="detailHistoryChart"></canvas>
-                    </div>
-
-                    <div class="text-center mt-3 text-xs text-slate-400">
-                        <span>24 de abril - 25 de abril</span>
-                    </div>
-                </div>
-
             </div>
 
 
-            <!-- ================= SCREEN 3: CONFIGURACIÓN DE LÍMITES Y ALERTAS ================= -->
-            <div id="screen-limits" class="screen hidden p-4 flex flex-col space-y-4">
-                
-                <!-- Header Navigation -->
-                <div class="flex items-center justify-between pb-2 border-b border-slate-200">
-                    <button onclick="switchScreen('screen-home')" class="flex items-center space-x-1 text-teal-700 font-semibold text-sm">
-                        <i class="fa-solid fa-arrow-left"></i>
-                        <span>Atrás</span>
-                    </button>
-                    <button onclick="showHelpModal()" class="text-slate-600 text-lg">
-                        <i class="fa-regular fa-circle-question"></i>
-                    </button>
-                </div>
-
-                <div class="flex items-start space-x-3">
-                    <div class="bg-teal-100 p-2.5 rounded-xl text-teal-800">
-                        <i class="fa-solid fa-chart-line text-lg"></i>
-                    </div>
-                    <div>
-                        <h1 class="font-bold text-base text-slate-800">4. Establezca los límites para generar alertas</h1>
-                        <p class="text-xs text-slate-500 mt-0.5">Los límites se determinan por zonas. Podrá modificar esos valores en cualquier momento.</p>
-                    </div>
-                </div>
-
-                <!-- Dropdowns Zone Name / Building -->
-                <div class="space-y-2">
-                    <div class="bg-white border border-slate-200 rounded-xl p-3 flex justify-between items-center text-xs font-medium text-slate-700 shadow-sm cursor-pointer">
-                        <span>Zone name</span>
-                        <i class="fa-solid fa-chevron-down text-slate-400"></i>
-                    </div>
-                    <div class="bg-white border border-slate-200 rounded-xl p-3 flex justify-between items-center text-xs font-semibold text-slate-800 shadow-sm cursor-pointer">
-                        <span>Edificio A (Sector Norte)</span>
-                        <i class="fa-solid fa-chevron-up text-slate-400"></i>
-                    </div>
-                </div>
-
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-4">
-                    <!-- Temperature Alarma -->
-                    <div class="relative pl-4 border-l-4 border-teal-700">
-                        <div class="flex items-center space-x-2 mb-2">
-                            <i class="fa-solid fa-temperature-low text-teal-700 text-sm"></i>
-                            <span class="text-xs font-bold text-slate-800">Alarma Temperatura</span>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 text-xs">
-                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-2 flex items-center justify-between">
-                                <span class="text-[10px] text-slate-400">Límite inferior</span>
-                                <div class="flex items-center space-x-1">
-                                    <input type="number" id="limit-temp-min" value="2" class="w-12 text-right font-bold text-slate-800 bg-transparent focus:outline-none">
-                                    <span class="font-bold text-slate-700">°C</span>
-                                </div>
-                            </div>
-                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-2 flex items-center justify-between">
-                                <span class="text-[10px] text-slate-400">Límite superior</span>
-                                <div class="flex items-center space-x-1">
-                                    <input type="number" id="limit-temp-max" value="35" class="w-12 text-right font-bold text-slate-800 bg-transparent focus:outline-none">
-                                    <span class="font-bold text-slate-700">°C</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Temperature Advertencia -->
-                    <div class="relative pl-4 border-l-4 border-teal-500">
-                        <div class="flex items-center space-x-2 mb-2">
-                            <i class="fa-solid fa-triangle-exclamation text-teal-600 text-sm"></i>
-                            <span class="text-xs font-bold text-slate-800">Advertencia Temperatura</span>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 text-xs">
-                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-2 flex items-center justify-between">
-                                <span class="text-[10px] text-slate-400">Límite inferior</span>
-                                <div class="flex items-center space-x-1">
-                                    <input type="number" id="limit-warn-min" value="4" class="w-12 text-right font-bold text-slate-800 bg-transparent focus:outline-none">
-                                    <span class="font-bold text-slate-700">°C</span>
-                                </div>
-                            </div>
-                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-2 flex items-center justify-between">
-                                <span class="text-[10px] text-slate-400">Límite superior</span>
-                                <div class="flex items-center space-x-1">
-                                    <input type="number" id="limit-warn-max" value="29" class="w-12 text-right font-bold text-slate-800 bg-transparent focus:outline-none">
-                                    <span class="font-bold text-slate-700">°C</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Humidity Alarma -->
-                    <div class="relative pl-4 border-l-4 border-indigo-600 pt-2">
-                        <div class="flex items-center space-x-2 mb-2">
-                            <i class="fa-solid fa-droplet text-indigo-600 text-sm"></i>
-                            <span class="text-xs font-bold text-slate-800">Alarma Humedad Relativa</span>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 text-xs">
-                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-2 flex items-center justify-between">
-                                <span class="text-[10px] text-slate-400">Límite inferior</span>
-                                <div class="flex items-center space-x-1">
-                                    <input type="number" id="limit-hum-min" value="50" class="w-12 text-right font-bold text-slate-800 bg-transparent focus:outline-none">
-                                    <span class="font-bold text-slate-700">%</span>
-                                </div>
-                            </div>
-                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-2 flex items-center justify-between">
-                                <span class="text-[10px] text-slate-400">Límite superior</span>
-                                <div class="flex items-center space-x-1">
-                                    <input type="number" id="limit-hum-max" value="75" class="w-12 text-right font-bold text-slate-800 bg-transparent focus:outline-none">
-                                    <span class="font-bold text-slate-700">%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="grid grid-cols-2 gap-3 pt-2">
-                    <button onclick="resetLimits()" class="py-3 px-4 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-100 transition shadow-sm">
-                        Restaurar
-                    </button>
-                    <button onclick="saveLimits()" class="py-3 px-4 rounded-xl bg-teal-700 text-white text-xs font-bold hover:bg-teal-800 transition shadow-md">
-                        Validar
-                    </button>
-                </div>
-
-            </div>
-
-
-            <!-- ================= SCREEN 4: ALERTAS (TAB 3) ================= -->
-            <div id="screen-alerts" class="screen hidden p-4 flex flex-col space-y-4">
-                <h1 class="text-lg font-bold text-slate-800 mb-1">Centro de Alertas Agrícolas</h1>
-                <p class="text-xs text-slate-500 mb-2">Historial de riesgos de helada detectados en nodos LoRa.</p>
+            <!-- ================= VIEW 4: NOTIFICACIONES ================= -->
+            <div id="view-notifications" class="view-section hidden space-y-4 max-w-3xl mx-auto">
+                <h2 class="text-lg font-bold text-slate-800 mb-1">Historial de Notificaciones</h2>
+                <p class="text-xs text-slate-500 mb-4">Avisos automáticos de heladas y eventos enviados por la pasarela 4G.</p>
 
                 <div class="space-y-3">
-                    <div class="bg-red-50 border border-red-200 rounded-2xl p-4 shadow-sm flex items-start space-x-3">
+                    <div class="bg-red-50 border border-red-200 rounded-2xl p-4 shadow-xs flex items-start space-x-3">
                         <div class="bg-red-600 text-white p-2.5 rounded-xl shrink-0">
                             <i class="fa-solid fa-snowflake"></i>
                         </div>
-                        <div>
+                        <div class="flex-1">
                             <div class="flex items-center justify-between">
-                                <h3 class="text-xs font-bold text-red-900">Alerta Crítica de Helada</h3>
+                                <h3 class="text-xs font-bold text-red-900">Alerta Crítica de Helada - Sonda Norte</h3>
                                 <span class="text-[10px] text-red-500 font-semibold">03:52 AM</span>
                             </div>
-                            <p class="text-xs text-red-700 mt-1">Sonda Sector Norte registró T° Húmeda de -1.6°C. Riesgo severo para brotes.</p>
+                            <p class="text-xs text-red-700 mt-1">Temperatura húmeda registrada a -1.6°C. Umbral de helada superado.</p>
                         </div>
                     </div>
 
-                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 shadow-sm flex items-start space-x-3">
+                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 shadow-xs flex items-start space-x-3">
                         <div class="bg-amber-500 text-white p-2.5 rounded-xl shrink-0">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
-                        <div>
+                        <div class="flex-1">
                             <div class="flex items-center justify-between">
-                                <h3 class="text-xs font-bold text-amber-900">Advertencia de Descenso</h3>
+                                <h3 class="text-xs font-bold text-amber-900">Advertencia de Descenso Térmico</h3>
                                 <span class="text-[10px] text-amber-600 font-semibold">01:15 AM</span>
                             </div>
-                            <p class="text-xs text-amber-700 mt-1">Temperatura seca descendiendo rápidamente hacia el umbral de seguridad.</p>
+                            <p class="text-xs text-amber-700 mt-1">Temperatura seca descendiendo rápidamente hacia 2.6°C.</p>
                         </div>
                     </div>
 
-                    <div class="bg-teal-50 border border-teal-200 rounded-2xl p-4 shadow-sm flex items-start space-x-3">
+                    <div class="bg-teal-50 border border-teal-200 rounded-2xl p-4 shadow-xs flex items-start space-x-3">
                         <div class="bg-teal-700 text-white p-2.5 rounded-xl shrink-0">
-                            <i class="fa-solid fa-battery-quarter"></i>
+                            <i class="fa-solid fa-battery-full"></i>
                         </div>
-                        <div>
+                        <div class="flex-1">
                             <div class="flex items-center justify-between">
-                                <h3 class="text-xs font-bold text-teal-900">Batería Nodo LoRa #02</h3>
-                                <span class="text-[10px] text-teal-600 font-semibold">Ayer</span>
+                                <h3 class="text-xs font-bold text-teal-900">Ciclo Solar Completado</h3>
+                                <span class="text-[10px] text-teal-600 font-semibold">Ayer 18:30</span>
                             </div>
-                            <p class="text-xs text-teal-700 mt-1">Panel solar recargó satisfactoriamente al 100% durante el ciclo diurno.</p>
+                            <p class="text-xs text-teal-700 mt-1">Baterías 18650 de nodos LoRa recargadas al 100% satisfactoriamente.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
 
-            <!-- ================= SCREEN 5: NOTIFICACIONES (TAB 4) ================= -->
-            <div id="screen-notifications" class="screen hidden p-4 flex flex-col space-y-4">
-                <h1 class="text-lg font-bold text-slate-800 mb-1">Notificaciones Push</h1>
-                <p class="text-xs text-slate-500 mb-2">Avisos automáticos enviados vía Gateway 4G.</p>
-
-                <div class="space-y-2.5">
-                    <div class="bg-white border border-slate-200 p-3.5 rounded-2xl shadow-sm flex items-center space-x-3">
-                        <div class="w-2.5 h-2.5 rounded-full bg-teal-600 shrink-0"></div>
-                        <div class="flex-1">
-                            <div class="text-xs font-bold text-slate-800">Sincronización LoRa exitosa</div>
-                            <div class="text-[10px] text-slate-400">Paquete de datos recibido hace 5 minutos.</div>
+            <!-- ================= VIEW 5: MI CUENTA / GATEWAY ================= -->
+            <div id="view-account" class="view-section hidden space-y-6 max-w-2xl mx-auto">
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-6">
+                    <div class="flex flex-col items-center text-center py-4 border-b border-slate-200">
+                        <div class="w-16 h-16 bg-teal-700 text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-md mb-2">
+                            AG
                         </div>
+                        <h2 class="font-bold text-slate-800 text-base">Administrador Agrícola</h2>
+                        <p class="text-xs text-slate-500">fundo.norte@telemetria-lora.cl</p>
                     </div>
-                    <div class="bg-white border border-slate-200 p-3.5 rounded-2xl shadow-sm flex items-center space-x-3">
-                        <div class="w-2.5 h-2.5 rounded-full bg-slate-300 shrink-0"></div>
-                        <div class="flex-1">
-                            <div class="text-xs font-bold text-slate-800">Calibración de Sonda SHT30</div>
-                            <div class="text-[10px] text-slate-400">Calibración completada con éxito.</div>
+
+                    <div class="space-y-3">
+                        <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex items-center justify-between text-xs">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-solid fa-tower-broadcast text-teal-700 text-base"></i>
+                                <div>
+                                    <div class="font-bold text-slate-800">Pasarela 4G Gateway LoRa</div>
+                                    <div class="text-slate-400">MQTT Broker: mqtt.telemetria-lora.cl</div>
+                                </div>
+                            </div>
+                            <span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-semibold">Conectado</span>
+                        </div>
+
+                        <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex items-center justify-between text-xs">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-brands fa-github text-teal-700 text-base"></i>
+                                <div>
+                                    <div class="font-bold text-slate-800">Repositorio GitHub Oficial</div>
+                                    <div class="text-slate-400">github.com/usuario/sonda-heladas-lora</div>
+                                </div>
+                            </div>
+                            <a href="https://github.com" target="_blank" class="px-3 py-1.5 bg-teal-700 text-white rounded-lg font-bold hover:bg-teal-800 transition">Visitar</a>
                         </div>
                     </div>
                 </div>
             </div>
 
+        </main>
+    </div>
 
-            <!-- ================= SCREEN 6: MI CUENTA / PERFIL (TAB 5) ================= -->
-            <div id="screen-account" class="screen hidden p-4 flex flex-col space-y-4">
-                <div class="flex flex-col items-center text-center py-4 bg-slate-50 border border-slate-200 rounded-2xl">
-                    <div class="w-16 h-16 bg-teal-700 text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-md mb-2">
-                        AG
-                    </div>
-                    <h2 class="font-bold text-slate-800 text-base">Administrador Agrícola</h2>
-                    <p class="text-xs text-slate-500">fundo.norte@telemetria-lora.cl</p>
-                </div>
 
-                <div class="bg-white border border-slate-200 rounded-2xl p-2 shadow-sm space-y-1">
-                    <a href="#github" onclick="showMsg('Redirigiendo al repositorio GitHub del proyecto...')" class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition text-xs font-medium text-slate-700">
-                        <div class="flex items-center space-x-3">
-                            <i class="fa-brands fa-github text-base text-teal-700"></i>
-                            <span>Repositorio GitHub Oficial</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
-                    </a>
-                    <a href="#config" onclick="showMsg('Configuración de Gateway ESP32 LoRa')" class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition text-xs font-medium text-slate-700">
-                        <div class="flex items-center space-x-3">
-                            <i class="fa-solid fa-tower-broadcast text-base text-teal-700"></i>
-                            <span>Configuración de Gateway 4G</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
-                    </a>
-                    <a href="#sensors" onclick="switchScreen('screen-sensors')" class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition text-xs font-medium text-slate-700">
-                        <div class="flex items-center space-x-3">
-                            <i class="fa-solid fa-microchip text-base text-teal-700"></i>
-                            <span>Lista de Nodos ESP32 Activos</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
-                    </a>
-                </div>
+    <!-- ================= MOBILE BOTTOM NAVIGATION BAR (Visible solo en Celular) ================= -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 py-2 flex justify-around items-center z-40 shadow-lg">
+        <button onclick="switchTab('home')" class="mobile-tab-btn flex flex-col items-center space-y-1 text-teal-700 font-bold transition p-1" data-tab="home">
+            <div class="bg-teal-100 px-3 py-1 rounded-full mobile-pill transition">
+                <i class="fa-solid fa-house text-sm"></i>
             </div>
+            <span class="text-[10px]">Explota...</span>
+        </button>
 
-        </div> <!-- /#app-container -->
+        <button onclick="switchTab('sensors')" class="mobile-tab-btn flex flex-col items-center space-y-1 text-slate-400 transition p-1" data-tab="sensors">
+            <div class="px-3 py-1 rounded-full mobile-pill transition">
+                <i class="fa-solid fa-tower-cell text-sm"></i>
+            </div>
+            <span class="text-[10px]">Sensores</span>
+        </button>
+
+        <button onclick="switchTab('limits')" class="mobile-tab-btn flex flex-col items-center space-y-1 text-slate-400 transition p-1" data-tab="limits">
+            <div class="px-3 py-1 rounded-full mobile-pill transition">
+                <i class="fa-solid fa-sliders text-sm"></i>
+            </div>
+            <span class="text-[10px]">Alertas</span>
+        </button>
+
+        <button onclick="switchTab('notifications')" class="mobile-tab-btn flex flex-col items-center space-y-1 text-slate-400 transition p-1 relative" data-tab="notifications">
+            <div class="px-3 py-1 rounded-full mobile-pill transition relative">
+                <i class="fa-regular fa-bell text-sm"></i>
+                <span class="absolute top-0.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+            </div>
+            <span class="text-[10px]">Avisos</span>
+        </button>
+
+        <button onclick="switchTab('account')" class="mobile-tab-btn flex flex-col items-center space-y-1 text-slate-400 transition p-1" data-tab="account">
+            <div class="px-3 py-1 rounded-full mobile-pill transition">
+                <i class="fa-regular fa-user text-sm"></i>
+            </div>
+            <span class="text-[10px]">Cuenta</span>
+        </button>
+    </nav>
 
 
-        <!-- ================= BOTTOM NAVIGATION BAR ================= -->
-        <div class="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-2 flex justify-around items-center z-40">
-            
-            <button onclick="switchTab('screen-home', this)" class="nav-btn flex flex-col items-center space-y-1 text-teal-700 transition" data-target="screen-home">
-                <div class="bg-teal-100 p-1.5 rounded-full px-4 nav-pill transition">
-                    <i class="fa-solid fa-house text-base"></i>
-                </div>
-                <span class="text-[10px] font-bold">Mi explota...</span>
+    <!-- ================= CUSTOM MESSAGE BOX (Sin alert()) ================= -->
+    <div id="msg-modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center space-y-4">
+            <div class="w-12 h-12 bg-teal-100 text-teal-800 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 class="font-bold text-slate-800 text-base">Aviso del Sistema LoRa</h3>
+            <p id="msg-text" class="text-xs text-slate-600 leading-relaxed"></p>
+            <button onclick="closeMsgModal()" class="w-full py-2.5 bg-teal-700 text-white font-bold text-xs rounded-xl hover:bg-teal-800 transition">
+                Entendido
             </button>
-
-            <button onclick="switchTab('screen-sensors', this)" class="nav-btn flex flex-col items-center space-y-1 text-slate-400 hover:text-teal-700 transition" data-target="screen-sensors">
-                <div class="p-1.5 rounded-full nav-pill transition">
-                    <i class="fa-solid fa-tower-cell text-base"></i>
-                </div>
-                <span class="text-[10px] font-medium">Sensores</span>
-            </button>
-
-            <button onclick="switchTab('screen-alerts', this)" class="nav-btn flex flex-col items-center space-y-1 text-slate-400 hover:text-teal-700 transition" data-target="screen-alerts">
-                <div class="p-1.5 rounded-full nav-pill transition relative">
-                    <i class="fa-solid fa-bullhorn text-base"></i>
-                </div>
-                <span class="text-[10px] font-medium">Alertas</span>
-            </button>
-
-            <button onclick="switchTab('screen-notifications', this)" class="nav-btn flex flex-col items-center space-y-1 text-slate-400 hover:text-teal-700 transition" data-target="screen-notifications">
-                <div class="p-1.5 rounded-full nav-pill transition relative">
-                    <i class="fa-regular fa-bell text-base"></i>
-                    <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                </div>
-                <span class="text-[10px] font-medium">Notificaci...</span>
-            </button>
-
-            <button onclick="switchTab('screen-account', this)" class="nav-btn flex flex-col items-center space-y-1 text-slate-400 hover:text-teal-700 transition" data-target="screen-account">
-                <div class="p-1.5 rounded-full nav-pill transition">
-                    <i class="fa-regular fa-user text-base"></i>
-                </div>
-                <span class="text-[10px] font-medium">Mi cuento</span>
-            </button>
-
         </div>
+    </div>
 
 
-        <!-- ================= MODAL DE MENSAJES (Sin alert()) ================= -->
-        <div id="msg-modal" class="hidden absolute inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center space-y-4 animate-scaleUp">
-                <div class="w-12 h-12 bg-teal-100 text-teal-800 rounded-full flex items-center justify-center mx-auto text-xl">
-                    <i class="fa-solid fa-circle-check"></i>
-                </div>
-                <h3 id="msg-title" class="font-bold text-slate-800 text-base">Aviso del Sistema</h3>
-                <p id="msg-text" class="text-xs text-slate-600 leading-relaxed"></p>
-                <button onclick="closeMsgModal()" class="w-full py-2.5 bg-teal-700 text-white font-bold text-xs rounded-xl hover:bg-teal-800 transition">
-                    Entendido
-                </button>
+    <!-- ================= PLOT SELECTION MODAL ================= -->
+    <div id="plot-modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-end md:items-center justify-center p-0 md:p-4">
+        <div class="bg-white rounded-t-3xl md:rounded-2xl p-5 max-w-md w-full space-y-3 shadow-2xl">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-200">
+                <h3 class="font-bold text-slate-800 text-sm">Seleccionar Explotación Agrícola</h3>
+                <button onclick="togglePlotModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
             </div>
-        </div>
-
-        <!-- ================= MODAL SELECCIÓN DE PARCELA ================= -->
-        <div id="plot-modal" class="hidden absolute inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end justify-center">
-            <div class="bg-white rounded-t-3xl p-5 w-full space-y-3 shadow-2xl">
-                <div class="flex justify-between items-center pb-2 border-b border-slate-200">
-                    <h3 class="font-bold text-slate-800 text-sm">Seleccionar Explotación / Parcela</h3>
-                    <button onclick="togglePlotModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            <div class="space-y-2 py-2">
+                <div onclick="selectPlot('Mi Parcela (Sector Norte)')" class="p-3 bg-teal-50 border border-teal-200 rounded-xl text-xs font-semibold text-teal-900 cursor-pointer flex justify-between items-center">
+                    <span>Mi Parcela (Sector Norte)</span>
+                    <i class="fa-solid fa-check text-teal-700"></i>
                 </div>
-                <div class="space-y-2 py-2">
-                    <div onclick="selectPlot('Mi Parcela (Sector Norte)')" class="p-3 bg-teal-50 border border-teal-200 rounded-xl text-xs font-semibold text-teal-900 cursor-pointer flex justify-between items-center">
-                        <span>Mi Parcela (Sector Norte)</span>
-                        <i class="fa-solid fa-check text-teal-700"></i>
-                    </div>
-                    <div onclick="selectPlot('Huerto Manzanos (Sur)')" class="p-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700 cursor-pointer hover:bg-slate-50">
-                        <span>Huerto Manzanos (Sur)</span>
-                    </div>
-                    <div onclick="selectPlot('Viñedo Experimental LoRa')" class="p-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700 cursor-pointer hover:bg-slate-50">
-                        <span>Viñedo Experimental LoRa</span>
-                    </div>
+                <div onclick="selectPlot('Huerto Manzanos (Sur)')" class="p-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700 cursor-pointer hover:bg-slate-50">
+                    <span>Huerto Manzanos (Sur)</span>
+                </div>
+                <div onclick="selectPlot('Viñedo Experimental LoRa')" class="p-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700 cursor-pointer hover:bg-slate-50">
+                    <span>Viñedo Experimental LoRa</span>
                 </div>
             </div>
         </div>
+    </div>
 
-    </div><!-- /phone-frame -->
 
-
-    <!-- ================= JAVASCRIPT LOGIC & CHARTS ================= -->
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
     <script>
-        
         let homeChartInstance = null;
-        let detailChartInstance = null;
 
         window.addEventListener('DOMContentLoaded', () => {
             initHomeChart();
-            initDetailChart();
         });
 
-        // Switch between screens programmatically
-        function switchScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
-            document.getElementById(screenId).classList.remove('hidden');
-            document.getElementById('app-container').scrollTop = 0;
-        }
+        // Tab Switching Logic for both Desktop and Mobile
+        function switchTab(tabId) {
+            // Hide all view sections
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            window.scrollTo(0, 0);
 
-        // Switch tabs with bottom bar highlighting
-        function switchTab(screenId, btnElement) {
-            switchScreen(screenId);
-            
-            // Update bottom nav styles
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('text-teal-700', 'font-bold');
-                btn.classList.add('text-slate-400', 'font-medium');
-                const pill = btn.querySelector('.nav-pill');
-                pill.classList.remove('bg-teal-100', 'px-4');
+            // Update Desktop Sidebar buttons
+            document.querySelectorAll('.sidebar-btn').forEach(btn => {
+                btn.classList.remove('bg-teal-800', 'text-white');
+                btn.classList.add('text-teal-200', 'hover:bg-teal-900');
+                if(btn.dataset.tab === tabId) {
+                    btn.classList.add('bg-teal-800', 'text-white');
+                    btn.classList.remove('text-teal-200', 'hover:bg-teal-900');
+                }
             });
 
-            btnElement.classList.remove('text-slate-400', 'font-medium');
-            btnElement.classList.add('text-teal-700', 'font-bold');
-            const activePill = btnElement.querySelector('.nav-pill');
-            activePill.classList.add('bg-teal-100', 'px-4');
+            // Update Mobile Bottom Nav buttons
+            document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
+                btn.classList.remove('text-teal-700', 'font-bold');
+                btn.classList.add('text-slate-400');
+                const pill = btn.querySelector('.mobile-pill');
+                if(pill) pill.classList.remove('bg-teal-100');
+
+                if(btn.dataset.tab === tabId) {
+                    btn.classList.add('text-teal-700', 'font-bold');
+                    btn.classList.remove('text-slate-400');
+                    if(pill) pill.classList.add('bg-teal-100');
+                }
+            });
         }
 
-        // Initialize Home Chart (Frost Risk Wet/Dry Temp)
+        // Initialize Main Frost Chart
         function initHomeChart() {
             const ctx = document.getElementById('homeFrostChart').getContext('2d');
             homeChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['1h', '2h', '3h', '4h', '5h', '6h', '7h', '8h'],
+                    labels: ['00:00', '01:00', '02:00', '03:00', '03:52', '05:00', '06:00', '07:00', '08:00'],
                     datasets: [
                         {
-                            label: 'Temp. Húmeda',
-                            data: [3.1, 2.0, 0.5, -1.6, 1.2, 2.5, 2.8, 3.2],
+                            label: 'Temp. Húmeda (°C)',
+                            data: [3.1, 2.0, 0.5, -1.0, -1.6, 0.2, 1.5, 2.5, 3.2],
                             borderColor: '#4f46e5', // Indigo
-                            backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                            borderWidth: 2,
+                            backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                            borderWidth: 2.5,
                             tension: 0.3,
                             fill: true
                         },
                         {
-                            label: 'Temp. Seca',
-                            data: [5.0, 2.5, 0.0, -2.6, 2.0, 2.2, 2.5, 3.0],
+                            label: 'Temp. Seca (°C)',
+                            data: [5.0, 2.5, 0.0, -1.8, -2.6, 1.0, 2.0, 2.5, 3.0],
                             borderColor: '#0f766e', // Teal
-                            backgroundColor: 'rgba(15, 118, 110, 0.1)',
-                            borderWidth: 2,
+                            backgroundColor: 'rgba(15, 118, 110, 0.08)',
+                            borderWidth: 2.5,
                             tension: 0.3,
                             fill: true
                         }
@@ -658,80 +679,32 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: {
+                        legend: { position: 'top', labels: { font: { size: 11 } } }
+                    },
                     scales: {
-                        y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
-                        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                        y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
+                        x: { grid: { display: false }, ticks: { font: { size: 11 } } }
                     }
                 }
             });
         }
 
-        // Initialize Detail History Chart
-        function initDetailChart() {
-            const ctx = document.getElementById('detailHistoryChart').getContext('2d');
-            detailChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['14:40', '17:26', '20:13', '23:00', '01:46', '04:33', '07:20', '10:06'],
-                    datasets: [{
-                        label: 'Temperatura Chambre 3',
-                        data: [20, 21, 23, 21.5, 21, 22, 21.5, 22],
-                        backgroundColor: '#0f766e',
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { 
-                            min: 14, 
-                            max: 30, 
-                            grid: { color: '#f1f5f9' },
-                            ticks: { font: { size: 10 } }
-                        },
-                        x: { grid: { display: false }, ticks: { font: { size: 9 } } }
-                    }
-                }
-            });
-        }
-
-        // Update Home chart time intervals
-        function updateHomeChart(timeRange) {
+        // Update Chart Time range
+        function updateHomeChart(range) {
             document.querySelectorAll('.time-btn-home').forEach(b => {
-                b.classList.remove('bg-white', 'shadow-sm', 'text-teal-800', 'font-bold');
+                b.classList.remove('bg-white', 'shadow-xs', 'text-teal-800', 'font-bold');
                 b.classList.add('text-slate-600');
             });
-            event.target.classList.add('bg-white', 'shadow-sm', 'text-teal-800', 'font-bold');
-
-            // Simulate slight variations based on button
-            if(timeRange === '1h') {
-                homeChartInstance.data.datasets[0].data = [ -1.5, -1.6, -1.65, -1.6 ];
-                homeChartInstance.data.labels = ['-45m', '-30m', '-15m', 'Ahora'];
-            } else {
-                homeChartInstance.data.datasets[0].data = [3.1, 2.0, 0.5, -1.6, 1.2, 2.5, 2.8, 3.2];
-                homeChartInstance.data.labels = ['1h', '2h', '3h', '4h', '5h', '6h', '7h', '8h'];
-            }
-            homeChartInstance.update();
+            event.target.classList.add('bg-white', 'shadow-xs', 'text-teal-800', 'font-bold');
+            showMsg(`Gráfico actualizado al intervalo: ${range}`);
         }
 
-        // Update Detail chart periods
-        function updateDetailPeriod(period) {
-            document.querySelectorAll('.time-btn-detail').forEach(b => {
-                b.classList.remove('bg-teal-700', 'text-white', 'shadow-sm', 'font-bold');
-                b.classList.add('text-slate-600');
-            });
-            event.target.classList.add('bg-teal-700', 'text-white', 'shadow-sm', 'font-bold');
-            showMsg(`Cargando registros históricos para el periodo: ${period}`);
-        }
-
-        // Limit configuration actions
+        // Save & Reset Limits
         function saveLimits() {
             const minT = document.getElementById('limit-temp-min').value;
             const maxT = document.getElementById('limit-temp-max').value;
-            showMsg(`Límites guardados correctamente:\nTemp Mín: ${minT}°C | Máx: ${maxT}°C`);
+            showMsg(`Límites de helada actualizados correctamente:\nTemp Mín: ${minT}°C | Máx: ${maxT}°C`);
         }
 
         function resetLimits() {
@@ -741,22 +714,21 @@
             document.getElementById('limit-warn-max').value = 29;
             document.getElementById('limit-hum-min').value = 50;
             document.getElementById('limit-hum-max').value = 75;
-            showMsg('Valores restaurados a la configuración predeterminada.');
+            showMsg('Valores restaurados a la configuración inicial.');
         }
 
-        // Plot Modal Toggle
+        // Plot Modal
         function togglePlotModal() {
-            const modal = document.getElementById('plot-modal');
-            modal.classList.toggle('hidden');
+            document.getElementById('plot-modal').classList.toggle('hidden');
         }
 
         function selectPlot(name) {
             document.getElementById('current-plot-name').textContent = name;
             togglePlotModal();
-            showMsg(`Explotación cambiada a: ${name}`);
+            showMsg(`Cargando datos telemetricos para: ${name}`);
         }
 
-        // Custom Message Box (Reemplaza alert)
+        // Custom Message Box
         function showMsg(text) {
             document.getElementById('msg-text').textContent = text;
             document.getElementById('msg-modal').classList.remove('hidden');
@@ -766,12 +738,8 @@
             document.getElementById('msg-modal').classList.add('hidden');
         }
 
-        function showHelpModal() {
-            showMsg('Establezca los umbrales de temperatura y humedad para activar las alarmas automáticas en la pasarela LoRa.');
-        }
-
         function refreshData() {
-            showMsg('Sonda ESP32 LoRa sincronizada. Datos actualizados vía pasarela 4G.');
+            showMsg('Pasarela LoRa 4G sincronizada. Lecturas de nodos SHT30 actualizadas.');
         }
     </script>
 </body>
