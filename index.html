@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sonda Heladas LoRa - Campo</title>
+    <title>aurumsysmeteo - Telemetría LoRa Agrícola</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -11,16 +11,16 @@
             theme: {
                 extend: {
                     colors: {
-                        teal: {
-                            50: '#f0fdfa',
-                            100: '#ccfbf1',
-                            200: '#99f6e4',
-                            500: '#14b8a6',
-                            600: '#0d9488',
-                            700: '#0f766e',
-                            800: '#115e59',
-                            900: '#134e4a',
-                            950: '#042f2e',
+                        skyline: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            950: '#082f49',
                         }
                     }
                 }
@@ -35,7 +35,12 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f1f5f9;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
         }
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
@@ -48,140 +53,141 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col md:flex-row text-slate-800">
+<body class="flex flex-col md:flex-row w-screen h-screen overflow-hidden text-slate-800">
 
     <!-- ================= DESKTOP SIDEBAR (Oculto en Celular) ================= -->
-    <aside class="hidden md:flex flex-col w-64 bg-teal-950 text-white shrink-0 border-r border-teal-900 shadow-xl">
-        <div class="p-5 flex items-center space-x-3 border-b border-teal-900/80">
-            <div class="bg-teal-700 p-2.5 rounded-xl text-white shadow-md">
-                <i class="fa-solid fa-snowflake text-lg"></i>
+    <aside class="hidden md:flex flex-col w-72 bg-skyline-950 text-white shrink-0 border-r border-skyline-900 shadow-2xl h-full">
+        <div class="p-5 flex items-center space-x-3 border-b border-skyline-900/80 bg-skyline-900/40">
+            <div class="bg-skyline-600 p-2.5 rounded-xl text-white shadow-md">
+                <i class="fa-solid fa-snowflake text-lg animate-pulse"></i>
             </div>
             <div>
-                <h1 class="font-bold text-sm leading-tight text-white">Sonda LoRa</h1>
-                <p class="text-[10px] text-teal-300">Monitoreo Agrícola de Heladas</p>
+                <h1 class="font-bold text-base tracking-wide text-white">aurumsysmeteo</h1>
+                <p class="text-[11px] text-skyline-300">Control de Heladas LoRa (ESP32)</p>
             </div>
         </div>
 
-        <nav class="flex-1 p-4 space-y-1.5 text-xs font-medium">
-            <button onclick="switchTab('home')" class="sidebar-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-teal-800 text-white shadow-sm transition text-left" data-tab="home">
-                <i class="fa-solid fa-house w-5 text-teal-300"></i>
-                <span>Mi explotación</span>
+        <nav class="flex-1 p-4 space-y-2 text-xs font-medium overflow-y-auto">
+            <button onclick="switchTab('home')" class="sidebar-btn w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl bg-skyline-800 text-white shadow-sm transition text-left" data-tab="home">
+                <i class="fa-solid fa-house w-5 text-skyline-300"></i>
+                <span class="font-semibold">Mi explotación</span>
             </button>
-            <button onclick="switchTab('sensors')" class="sidebar-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-teal-200 hover:bg-teal-900 transition text-left" data-tab="sensors">
-                <i class="fa-solid fa-tower-cell w-5 text-teal-300"></i>
-                <span>Sensores LoRa</span>
+            <button onclick="switchTab('sensors')" class="sidebar-btn w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-skyline-200 hover:bg-skyline-900 transition text-left" data-tab="sensors">
+                <i class="fa-solid fa-tower-cell w-5 text-skyline-300"></i>
+                <span class="font-semibold">Sensores LoRa</span>
             </button>
-            <button onclick="switchTab('limits')" class="sidebar-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-teal-200 hover:bg-teal-900 transition text-left" data-tab="limits">
-                <i class="fa-solid fa-sliders w-5 text-teal-300"></i>
-                <span>Configurar Alertas</span>
+            <button onclick="switchTab('limits')" class="sidebar-btn w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-skyline-200 hover:bg-skyline-900 transition text-left" data-tab="limits">
+                <i class="fa-solid fa-sliders w-5 text-skyline-300"></i>
+                <span class="font-semibold">Configurar Alertas</span>
             </button>
-            <button onclick="switchTab('notifications')" class="sidebar-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-teal-200 hover:bg-teal-900 transition text-left relative" data-tab="notifications">
-                <i class="fa-regular fa-bell w-5 text-teal-300"></i>
-                <span>Notificaciones</span>
-                <span class="absolute right-3 w-2 h-2 bg-red-500 rounded-full"></span>
+            <button onclick="switchTab('notifications')" class="sidebar-btn w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-skyline-200 hover:bg-skyline-900 transition text-left relative" data-tab="notifications">
+                <i class="fa-regular fa-bell w-5 text-skyline-300"></i>
+                <span class="font-semibold">Notificaciones</span>
+                <span class="absolute right-3.5 w-2.5 h-2.5 bg-red-500 rounded-full animate-ping"></span>
             </button>
-            <button onclick="switchTab('account')" class="sidebar-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-teal-200 hover:bg-teal-900 transition text-left" data-tab="account">
-                <i class="fa-regular fa-user w-5 text-teal-300"></i>
-                <span>Mi cuenta / Gateway</span>
+            <button onclick="switchTab('account')" class="sidebar-btn w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-skyline-200 hover:bg-skyline-900 transition text-left" data-tab="account">
+                <i class="fa-regular fa-user w-5 text-skyline-300"></i>
+                <span class="font-semibold">Mi cuenta / Gateway</span>
             </button>
         </nav>
 
-        <div class="p-4 border-t border-teal-900/80 text-[11px] text-teal-400">
+        <div class="p-4 border-t border-skyline-900/80 text-[11px] text-skyline-300 bg-skyline-900/20 flex items-center justify-between">
             <div class="flex items-center space-x-2">
-                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                <span>Pasarela 4G Online (ESP32)</span>
+                <div class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse"></div>
+                <span class="font-medium">Pasarela 4G Online</span>
             </div>
+            <span class="text-[10px] bg-skyline-900 px-2 py-0.5 rounded text-skyline-200">v2.4</span>
         </div>
     </aside>
 
     <!-- ================= MAIN CONTENT WRAPPER ================= -->
-    <div class="flex-1 flex flex-col min-w-0 pb-20 md:pb-0">
+    <div class="flex-1 flex flex-col h-full overflow-hidden w-full">
 
-        <!-- Top Header for Mobile & Desktop -->
-        <header class="bg-white border-b border-slate-200 px-4 md:px-8 py-3.5 flex justify-between items-center shadow-xs sticky top-0 z-30">
+        <!-- Top Header for Desktop & Mobile -->
+        <header class="bg-white border-b border-slate-200 px-4 md:px-8 py-3.5 flex justify-between items-center shadow-xs shrink-0 z-20">
             <div class="flex items-center space-x-3">
-                <div class="md:hidden bg-teal-700 text-white p-2 rounded-xl">
+                <div class="md:hidden bg-skyline-600 text-white p-2.5 rounded-xl shadow-md">
                     <i class="fa-solid fa-snowflake"></i>
                 </div>
                 <div>
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">Ubicación Activa</span>
-                    <div class="flex items-center space-x-2 font-bold text-teal-900 text-sm cursor-pointer" onclick="togglePlotModal()">
-                        <span id="current-plot-name">Mi Parcela (Sector Norte)</span>
-                        <i class="fa-solid fa-chevron-down text-xs text-teal-600"></i>
+                    <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">aurumsysmeteo | Ubicación Activa</span>
+                    <div class="flex items-center space-x-2 font-bold text-skyline-900 text-sm md:text-base cursor-pointer" onclick="togglePlotModal()">
+                        <span id="current-plot-name">Mi Parcela (Sector Norte - SHT30)</span>
+                        <i class="fa-solid fa-chevron-down text-xs text-skyline-600"></i>
                     </div>
                 </div>
             </div>
 
             <div class="flex items-center space-x-3">
-                <button onclick="refreshData()" class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 transition shadow-xs flex items-center space-x-1.5 text-xs font-semibold">
-                    <i class="fa-solid fa-rotate text-teal-700"></i>
-                    <span class="hidden sm:inline">Sincronizar</span>
+                <button onclick="refreshData()" class="px-3.5 py-2 rounded-xl bg-skyline-50 border border-skyline-200 text-skyline-700 hover:bg-skyline-100 transition shadow-xs flex items-center space-x-1.5 text-xs font-semibold">
+                    <i class="fa-solid fa-rotate text-skyline-600 animate-spin-hover"></i>
+                    <span class="hidden sm:inline">Sincronizar LoRa</span>
                 </button>
                 <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
                 <div class="flex items-center space-x-2">
-                    <div class="w-8 h-8 rounded-full bg-teal-700 text-white font-bold flex items-center justify-center text-xs shadow-xs">
-                        AG
+                    <div class="w-9 h-9 rounded-full bg-skyline-600 text-white font-bold flex items-center justify-center text-xs shadow-md">
+                        AS
                     </div>
-                    <span class="text-xs font-bold text-slate-700 hidden lg:inline">Admin Campo</span>
+                    <span class="text-xs font-bold text-slate-700 hidden lg:inline">Admin Aurum</span>
                 </div>
             </div>
         </header>
 
-        <!-- Dynamic Views Container -->
-        <main class="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto">
+        <!-- Scrollable Views Container (Pantalla Completa) -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 w-full pb-24 md:pb-8">
 
             <!-- ================= VIEW 1: MI EXPLOTACIÓN (DASHBOARD PRINCIPAL) ================= -->
-            <div id="view-home" class="view-section space-y-6">
+            <div id="view-home" class="view-section space-y-6 max-w-7xl mx-auto">
                 
                 <!-- Alert Banner -->
-                <div class="bg-gradient-to-r from-teal-900 to-teal-800 rounded-2xl p-5 text-white shadow-md relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="bg-gradient-to-r from-skyline-900 via-skyline-800 to-skyline-900 rounded-2xl p-5 md:p-6 text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-skyline-700">
                     <div class="absolute -right-6 -bottom-6 opacity-10 text-9xl">
                         <i class="fa-solid fa-snowflake"></i>
                     </div>
                     <div class="flex items-start space-x-4 z-10">
-                        <div class="bg-teal-700/80 p-3 rounded-xl border border-teal-600 shrink-0">
-                            <i class="fa-solid fa-snowflake text-white text-xl"></i>
+                        <div class="bg-skyline-600/90 p-3.5 rounded-2xl border border-skyline-500 shrink-0 shadow-inner">
+                            <i class="fa-solid fa-snowflake text-white text-2xl"></i>
                         </div>
                         <div>
-                            <div class="flex items-center space-x-2">
-                                <h2 class="font-bold text-base md:text-lg">Control de Riesgo de Heladas</h2>
-                                <span class="bg-red-500/20 text-red-200 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-500/30 animate-pulse">ALERTA ACTIVA</span>
+                            <div class="flex items-center space-x-2.5 flex-wrap gap-y-1">
+                                <h2 class="font-bold text-base md:text-xl">Control de Riesgo de Heladas</h2>
+                                <span class="bg-red-500/30 text-red-100 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-red-500/50 animate-pulse">ALERTA ACTIVA - NODO #04</span>
                             </div>
-                            <p class="text-xs text-teal-200 mt-1 max-w-2xl leading-relaxed">
-                                Sensores SHT30 LoRa reportan temperatura húmeda bajo 0°C en las últimas 12 horas. Riesgo severo para brotes y floración.
+                            <p class="text-xs md:text-sm text-skyline-100 mt-1 max-w-3xl leading-relaxed">
+                                Sensores SHT30 reportan temperatura húmeda crítica bajo 0°C en las últimas 12 horas. Alerta inalámbrica LoRa activa para protección de brotes.
                             </p>
                         </div>
                     </div>
-                    <button onclick="switchTab('limits')" class="z-15 px-4 py-2.5 bg-white text-teal-900 rounded-xl font-bold text-xs hover:bg-teal-50 transition shadow-md shrink-0">
-                        Ver Umbrales
+                    <button onclick="switchTab('limits')" class="z-15 px-5 py-3 bg-white text-skyline-900 rounded-xl font-bold text-xs hover:bg-skyline-50 transition shadow-lg shrink-0">
+                        Ver Umbrales de Alerta
                     </button>
                 </div>
 
                 <!-- Current Reading Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <!-- Wet Bulb -->
-                    <div onclick="switchTab('sensors')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs cursor-pointer hover:border-teal-500 transition group">
+                    <div onclick="switchTab('sensors')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs cursor-pointer hover:border-skyline-400 transition group">
                         <div class="flex items-center justify-between mb-3">
                             <span class="text-xs font-semibold text-slate-500">Temperatura Húmeda</span>
-                            <span class="w-3 h-3 rounded-full bg-indigo-600 inline-block group-hover:scale-110 transition"></span>
+                            <span class="w-3.5 h-3.5 rounded-full bg-skyline-600 inline-block group-hover:scale-125 transition shadow-sm"></span>
                         </div>
-                        <div class="text-3xl font-bold text-slate-900 mb-1" id="home-wet-temp">-1,6°C</div>
+                        <div class="text-3xl font-extrabold text-slate-900 mb-1" id="home-wet-temp">-1,6°C</div>
                         <div class="text-[11px] text-slate-400 flex items-center space-x-1">
-                            <i class="fa-solid fa-arrow-down text-indigo-600"></i>
-                            <span>Punto crítico alcanzado a las 03:52</span>
+                            <i class="fa-solid fa-arrow-down text-skyline-600"></i>
+                            <span>Punto crítico alcanzado 03:52 AM</span>
                         </div>
                     </div>
 
                     <!-- Dry Bulb -->
-                    <div onclick="switchTab('sensors')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs cursor-pointer hover:border-teal-500 transition group">
+                    <div onclick="switchTab('sensors')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs cursor-pointer hover:border-skyline-400 transition group">
                         <div class="flex items-center justify-between mb-3">
                             <span class="text-xs font-semibold text-slate-500">Temperatura Seca</span>
-                            <span class="w-3 h-3 rounded-full bg-teal-600 inline-block group-hover:scale-110 transition"></span>
+                            <span class="w-3.5 h-3.5 rounded-full bg-emerald-500 inline-block group-hover:scale-125 transition shadow-sm"></span>
                         </div>
-                        <div class="text-3xl font-bold text-slate-900 mb-1" id="home-dry-temp">-2,6°C</div>
+                        <div class="text-3xl font-extrabold text-slate-900 mb-1" id="home-dry-temp">-2,6°C</div>
                         <div class="text-[11px] text-slate-400 flex items-center space-x-1">
-                            <i class="fa-solid fa-temperature-arrow-down text-teal-600"></i>
-                            <span>Descenso rápido nocturno</span>
+                            <i class="fa-solid fa-temperature-arrow-down text-emerald-600"></i>
+                            <span>Descenso térmico nocturno</span>
                         </div>
                     </div>
 
@@ -189,43 +195,43 @@
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
                         <div class="flex items-center justify-between mb-3">
                             <span class="text-xs font-semibold text-slate-500">Punto de Rocío</span>
-                            <i class="fa-solid fa-droplet text-teal-600"></i>
+                            <i class="fa-solid fa-droplet text-skyline-600"></i>
                         </div>
-                        <div class="text-3xl font-bold text-slate-900 mb-1">-3.4°C</div>
+                        <div class="text-3xl font-extrabold text-slate-900 mb-1">-3,4°C</div>
                         <div class="text-[11px] text-slate-400">Calculado por SHT30 LoRa</div>
                     </div>
 
-                    <!-- Battery / Node Status -->
+                    <!-- Battery & Signal -->
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
                         <div class="flex items-center justify-between mb-3">
-                            <span class="text-xs font-semibold text-slate-500">Batería & Señal</span>
-                            <i class="fa-solid fa-tower-broadcast text-teal-600"></i>
+                            <span class="text-xs font-semibold text-slate-500">Batería & Señal LoRa</span>
+                            <i class="fa-solid fa-tower-broadcast text-skyline-600"></i>
                         </div>
-                        <div class="text-3xl font-bold text-slate-900 mb-1">100%</div>
+                        <div class="text-3xl font-extrabold text-slate-900 mb-1">100%</div>
                         <div class="text-[11px] text-emerald-600 font-semibold flex items-center space-x-1">
                             <i class="fa-solid fa-signal"></i>
-                            <span>RSSI: -74 dBm (Excelente)</span>
+                            <span>RSSI: -74 dBm (Excelente 915MHz)</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Main Chart Panel -->
-                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 md:p-6 shadow-xs">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-sm">Evolución Térmica del Riesgo de Helada</h3>
-                            <p class="text-xs text-slate-400">Comparativa de temperatura seca vs húmeda registrada en nodos LoRa</p>
+                            <h3 class="font-bold text-slate-800 text-sm md:text-base">Evolución Térmica del Riesgo de Helada</h3>
+                            <p class="text-xs text-slate-400">Comparativa detallada de temperatura seca vs húmeda registrada en nodos SHT30</p>
                         </div>
                         <!-- Time Selector -->
                         <div class="flex space-x-1 bg-slate-100 p-1 rounded-xl text-xs font-medium">
-                            <button onclick="updateHomeChart('1h')" class="px-3 py-1.5 rounded-lg bg-white shadow-xs text-teal-800 font-bold transition time-btn-home" data-time="1h">1h</button>
-                            <button onclick="updateHomeChart('4h')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-white/50 transition time-btn-home" data-time="4h">4h</button>
-                            <button onclick="updateHomeChart('8h')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-white/50 transition time-btn-home" data-time="8h">8h</button>
-                            <button onclick="updateHomeChart('24h')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-white/50 transition time-btn-home" data-time="24h">24h</button>
+                            <button onclick="updateHomeChart('1h')" class="px-3.5 py-1.5 rounded-lg bg-white shadow-xs text-skyline-800 font-bold transition time-btn-home" data-time="1h">1h</button>
+                            <button onclick="updateHomeChart('4h')" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-white/50 transition time-btn-home" data-time="4h">4h</button>
+                            <button onclick="updateHomeChart('8h')" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-white/50 transition time-btn-home" data-time="8h">8h</button>
+                            <button onclick="updateHomeChart('24h')" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-white/50 transition time-btn-home" data-time="24h">24h</button>
                         </div>
                     </div>
 
-                    <div class="h-72 md:h-80 relative w-full">
+                    <div class="h-80 md:h-96 relative w-full">
                         <canvas id="homeFrostChart"></canvas>
                     </div>
                 </div>
@@ -234,107 +240,108 @@
 
 
             <!-- ================= VIEW 2: SENSORES LoRa (SHT30 NODES) ================= -->
-            <div id="view-sensors" class="view-section hidden space-y-6">
-                <div class="flex justify-between items-center">
+            <div id="view-sensors" class="view-section hidden space-y-6 max-w-7xl mx-auto">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div>
-                        <h2 class="text-lg font-bold text-slate-800">Sensores y Nodos LoRa Activos</h2>
-                        <p class="text-xs text-slate-500">Estado de telemetría, batería 18650, RSSI y GPS en campo.</p>
+                        <h2 class="text-lg md:text-xl font-bold text-slate-800">Sensores y Nodos LoRa Activos (aurumsysmeteo)</h2>
+                        <p class="text-xs text-slate-500">Telemetría inalámbrica ESP32, baterías 18650, RSSI, GPS y SHT30 en campo.</p>
                     </div>
-                    <button onclick="showMsg('Escaneando nuevos nodos LoRa en la frecuencia 915MHz...')" class="px-4 py-2 bg-teal-700 text-white rounded-xl text-xs font-bold hover:bg-teal-800 transition shadow-xs">
-                        + Añadir Nodo SHT30
+                    <button onclick="showMsg('Escaneando nuevos nodos LoRa 915MHz en el campo...')" class="px-4 py-2.5 bg-skyline-600 text-white rounded-xl text-xs font-bold hover:bg-skyline-700 transition shadow-md flex items-center space-x-2">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Añadir Nodo SHT30</span>
                     </button>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Sensor Card 1 -->
-                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <!-- Sensor 1 -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4 hover:shadow-md transition">
                         <div class="flex justify-between items-start">
                             <div class="flex items-center space-x-3">
-                                <div class="bg-teal-100 text-teal-800 p-3 rounded-xl">
+                                <div class="bg-skyline-100 text-skyline-800 p-3.5 rounded-xl shadow-inner">
                                     <i class="fa-solid fa-temperature-half text-lg"></i>
                                 </div>
                                 <div>
                                     <h3 class="font-bold text-slate-800 text-sm">Nodo LoRa #04 (Sector Norte)</h3>
-                                    <span class="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full">Activo</span>
+                                    <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full inline-block mt-1">Conectado Online</span>
                                 </div>
                             </div>
-                            <span class="text-xs font-bold text-slate-500">SHT30</span>
+                            <span class="text-xs font-bold text-slate-400">SHT30</span>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-100">
-                            <div>
-                                <span class="text-slate-400 block text-[10px]">Temperatura Húmeda</span>
-                                <span class="font-bold text-slate-800 text-base">-1,6°C</span>
+                        <div class="grid grid-cols-2 gap-3 text-xs pt-2 border-t border-slate-100">
+                            <div class="bg-slate-50 p-3 rounded-xl">
+                                <span class="text-slate-400 block text-[10px]">Temp. Húmeda</span>
+                                <span class="font-bold text-slate-900 text-base">-1,6°C</span>
                             </div>
-                            <div>
-                                <span class="text-slate-400 block text-[10px]">Temperatura Seca</span>
-                                <span class="font-bold text-slate-800 text-base">-2,6°C</span>
+                            <div class="bg-slate-50 p-3 rounded-xl">
+                                <span class="text-slate-400 block text-[10px]">Temp. Seca</span>
+                                <span class="font-bold text-slate-900 text-base">-2,6°C</span>
                             </div>
                         </div>
-                        <div class="flex justify-between items-center text-[11px] text-slate-500 pt-2 border-t border-slate-100">
+                        <div class="flex justify-between items-center text-[11px] text-slate-500 pt-2 border-t border-slate-100 font-medium">
                             <span><i class="fa-solid fa-battery-full text-emerald-600"></i> 100% (Solar)</span>
-                            <span><i class="fa-solid fa-signal text-teal-600"></i> -72 dBm</span>
+                            <span><i class="fa-solid fa-signal text-skyline-600"></i> -72 dBm</span>
                             <span><i class="fa-solid fa-location-dot text-red-500"></i> GPS Fix</span>
                         </div>
                     </div>
 
-                    <!-- Sensor Card 2 -->
-                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+                    <!-- Sensor 2 -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4 hover:shadow-md transition">
                         <div class="flex justify-between items-start">
                             <div class="flex items-center space-x-3">
-                                <div class="bg-teal-100 text-teal-800 p-3 rounded-xl">
+                                <div class="bg-skyline-100 text-skyline-800 p-3.5 rounded-xl shadow-inner">
                                     <i class="fa-solid fa-temperature-half text-lg"></i>
                                 </div>
                                 <div>
-                                    <h3 class="font-bold text-slate-800 text-sm">Nodo LoRa #02 (Sur Manzanos)</h3>
-                                    <span class="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full">Activo</span>
+                                    <h3 class="font-bold text-slate-800 text-sm">Nodo LoRa #02 (Huerto Sur)</h3>
+                                    <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full inline-block mt-1">Conectado Online</span>
                                 </div>
                             </div>
-                            <span class="text-xs font-bold text-slate-500">SHT30</span>
+                            <span class="text-xs font-bold text-slate-400">SHT30</span>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-100">
-                            <div>
-                                <span class="text-slate-400 block text-[10px]">Temperatura Húmeda</span>
-                                <span class="font-bold text-slate-800 text-base">0.4°C</span>
+                        <div class="grid grid-cols-2 gap-3 text-xs pt-2 border-t border-slate-100">
+                            <div class="bg-slate-50 p-3 rounded-xl">
+                                <span class="text-slate-400 block text-[10px]">Temp. Húmeda</span>
+                                <span class="font-bold text-slate-900 text-base">0,4°C</span>
                             </div>
-                            <div>
-                                <span class="text-slate-400 block text-[10px]">Temperatura Seca</span>
-                                <span class="font-bold text-slate-800 text-base">1.2°C</span>
+                            <div class="bg-slate-50 p-3 rounded-xl">
+                                <span class="text-slate-400 block text-[10px]">Temp. Seca</span>
+                                <span class="font-bold text-slate-900 text-base">1,2°C</span>
                             </div>
                         </div>
-                        <div class="flex justify-between items-center text-[11px] text-slate-500 pt-2 border-t border-slate-100">
+                        <div class="flex justify-between items-center text-[11px] text-slate-500 pt-2 border-t border-slate-100 font-medium">
                             <span><i class="fa-solid fa-battery-three-quarters text-emerald-600"></i> 88%</span>
-                            <span><i class="fa-solid fa-signal text-teal-600"></i> -81 dBm</span>
+                            <span><i class="fa-solid fa-signal text-skyline-600"></i> -81 dBm</span>
                             <span><i class="fa-solid fa-location-dot text-red-500"></i> GPS Fix</span>
                         </div>
                     </div>
 
-                    <!-- Sensor Card 3 -->
-                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+                    <!-- Sensor 3 -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4 hover:shadow-md transition">
                         <div class="flex justify-between items-start">
                             <div class="flex items-center space-x-3">
-                                <div class="bg-teal-100 text-teal-800 p-3 rounded-xl">
+                                <div class="bg-skyline-100 text-skyline-800 p-3.5 rounded-xl shadow-inner">
                                     <i class="fa-solid fa-temperature-half text-lg"></i>
                                 </div>
                                 <div>
-                                    <h3 class="font-bold text-slate-800 text-sm">Nodo LoRa #01 (Viñedo)</h3>
-                                    <span class="text-[10px] bg-amber-100 text-amber-800 font-semibold px-2 py-0.5 rounded-full">En reposo</span>
+                                    <h3 class="font-bold text-slate-800 text-sm">Nodo LoRa #01 (Viñedo Este)</h3>
+                                    <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full inline-block mt-1">Modo Reposo</span>
                                 </div>
                             </div>
-                            <span class="text-xs font-bold text-slate-500">SHT30</span>
+                            <span class="text-xs font-bold text-slate-400">SHT30</span>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-100">
-                            <div>
-                                <span class="text-slate-400 block text-[10px]">Temperatura Húmeda</span>
-                                <span class="font-bold text-slate-800 text-base">2.1°C</span>
+                        <div class="grid grid-cols-2 gap-3 text-xs pt-2 border-t border-slate-100">
+                            <div class="bg-slate-50 p-3 rounded-xl">
+                                <span class="text-slate-400 block text-[10px]">Temp. Húmeda</span>
+                                <span class="font-bold text-slate-900 text-base">2,1°C</span>
                             </div>
-                            <div>
-                                <span class="text-slate-400 block text-[10px]">Temperatura Seca</span>
-                                <span class="font-bold text-slate-800 text-base">3.5°C</span>
+                            <div class="bg-slate-50 p-3 rounded-xl">
+                                <span class="text-slate-400 block text-[10px]">Temp. Seca</span>
+                                <span class="font-bold text-slate-900 text-base">3,5°C</span>
                             </div>
                         </div>
-                        <div class="flex justify-between items-center text-[11px] text-slate-500 pt-2 border-t border-slate-100">
+                        <div class="flex justify-between items-center text-[11px] text-slate-500 pt-2 border-t border-slate-100 font-medium">
                             <span><i class="fa-solid fa-battery-full text-emerald-600"></i> 95%</span>
-                            <span><i class="fa-solid fa-signal text-teal-600"></i> -68 dBm</span>
+                            <span><i class="fa-solid fa-signal text-skyline-600"></i> -68 dBm</span>
                             <span><i class="fa-solid fa-location-dot text-red-500"></i> GPS Fix</span>
                         </div>
                     </div>
@@ -342,36 +349,36 @@
             </div>
 
 
-            <!-- ================= VIEW 3: CONFIGURACIÓN DE LÍMITES Y ALERTAS ================= -->
+            <!-- ================= VIEW 3: CONFIGURAR ALERTAS ================= -->
             <div id="view-limits" class="view-section hidden space-y-6 max-w-2xl mx-auto">
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-6">
-                    <div class="flex items-start space-x-3 border-b border-slate-200 pb-4">
-                        <div class="bg-teal-100 p-3 rounded-xl text-teal-800">
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-xs space-y-6">
+                    <div class="flex items-start space-x-4 border-b border-slate-200 pb-5">
+                        <div class="bg-skyline-100 p-3.5 rounded-xl text-skyline-800 shadow-inner">
                             <i class="fa-solid fa-sliders text-xl"></i>
                         </div>
                         <div>
-                            <h2 class="font-bold text-base text-slate-800">Establezca los límites para generar alertas</h2>
-                            <p class="text-xs text-slate-500 mt-0.5">Los umbrales se aplican a los nodos LoRa SHT30 para activar sirenas o avisos 4G.</p>
+                            <h2 class="font-bold text-base md:text-lg text-slate-800">Establezca los límites para generar alertas</h2>
+                            <p class="text-xs text-slate-500 mt-0.5">Los umbrales se sincronizan vía MQTT con los nodos ESP32 LoRa en campo.</p>
                         </div>
                     </div>
 
-                    <div class="space-y-4">
+                    <div class="space-y-5">
                         <!-- Alarma Temperatura -->
-                        <div class="relative pl-4 border-l-4 border-teal-700 space-y-2">
+                        <div class="relative pl-4 border-l-4 border-skyline-600 space-y-2.5">
                             <div class="flex items-center space-x-2">
-                                <i class="fa-solid fa-temperature-low text-teal-700"></i>
-                                <span class="text-xs font-bold text-slate-800 uppercase">Alarma Temperatura (Crítico Helada)</span>
+                                <i class="fa-solid fa-temperature-low text-skyline-600"></i>
+                                <span class="text-xs font-bold text-slate-800 uppercase tracking-wide">Alarma Temperatura (Crítico Helada)</span>
                             </div>
                             <div class="grid grid-cols-2 gap-3 text-xs">
-                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center">
-                                    <span class="text-slate-400">Límite inferior</span>
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex justify-between items-center shadow-xs">
+                                    <span class="text-slate-400 font-medium">Límite inferior</span>
                                     <div class="flex items-center space-x-1">
                                         <input type="number" id="limit-temp-min" value="2" class="w-14 text-right font-bold text-slate-800 bg-transparent focus:outline-none">
                                         <span class="font-bold text-slate-700">°C</span>
                                     </div>
                                 </div>
-                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center">
-                                    <span class="text-slate-400">Límite superior</span>
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex justify-between items-center shadow-xs">
+                                    <span class="text-slate-400 font-medium">Límite superior</span>
                                     <div class="flex items-center space-x-1">
                                         <input type="number" id="limit-temp-max" value="35" class="w-14 text-right font-bold text-slate-800 bg-transparent focus:outline-none">
                                         <span class="font-bold text-slate-700">°C</span>
@@ -381,21 +388,21 @@
                         </div>
 
                         <!-- Advertencia Temperatura -->
-                        <div class="relative pl-4 border-l-4 border-teal-500 space-y-2">
+                        <div class="relative pl-4 border-l-4 border-skyline-400 space-y-2.5">
                             <div class="flex items-center space-x-2">
-                                <i class="fa-solid fa-triangle-exclamation text-teal-600"></i>
-                                <span class="text-xs font-bold text-slate-800 uppercase">Advertencia Temperatura</span>
+                                <i class="fa-solid fa-triangle-exclamation text-skyline-500"></i>
+                                <span class="text-xs font-bold text-slate-800 uppercase tracking-wide">Advertencia Temperatura</span>
                             </div>
                             <div class="grid grid-cols-2 gap-3 text-xs">
-                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center">
-                                    <span class="text-slate-400">Límite inferior</span>
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex justify-between items-center shadow-xs">
+                                    <span class="text-slate-400 font-medium">Límite inferior</span>
                                     <div class="flex items-center space-x-1">
                                         <input type="number" id="limit-warn-min" value="4" class="w-14 text-right font-bold text-slate-800 bg-transparent focus:outline-none">
                                         <span class="font-bold text-slate-700">°C</span>
                                     </div>
                                 </div>
-                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center">
-                                    <span class="text-slate-400">Límite superior</span>
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex justify-between items-center shadow-xs">
+                                    <span class="text-slate-400 font-medium">Límite superior</span>
                                     <div class="flex items-center space-x-1">
                                         <input type="number" id="limit-warn-max" value="29" class="w-14 text-right font-bold text-slate-800 bg-transparent focus:outline-none">
                                         <span class="font-bold text-slate-700">°C</span>
@@ -405,21 +412,21 @@
                         </div>
 
                         <!-- Humedad Relativa -->
-                        <div class="relative pl-4 border-l-4 border-indigo-600 space-y-2">
+                        <div class="relative pl-4 border-l-4 border-indigo-500 space-y-2.5">
                             <div class="flex items-center space-x-2">
-                                <i class="fa-solid fa-droplet text-indigo-600"></i>
-                                <span class="text-xs font-bold text-slate-800 uppercase">Alarma Humedad Relativa</span>
+                                <i class="fa-solid fa-droplet text-indigo-500"></i>
+                                <span class="text-xs font-bold text-slate-800 uppercase tracking-wide">Alarma Humedad Relativa</span>
                             </div>
                             <div class="grid grid-cols-2 gap-3 text-xs">
-                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center">
-                                    <span class="text-slate-400">Límite inferior</span>
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex justify-between items-center shadow-xs">
+                                    <span class="text-slate-400 font-medium">Límite inferior</span>
                                     <div class="flex items-center space-x-1">
                                         <input type="number" id="limit-hum-min" value="50" class="w-14 text-right font-bold text-slate-800 bg-transparent focus:outline-none">
                                         <span class="font-bold text-slate-700">%</span>
                                     </div>
                                 </div>
-                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center">
-                                    <span class="text-slate-400">Límite superior</span>
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex justify-between items-center shadow-xs">
+                                    <span class="text-slate-400 font-medium">Límite superior</span>
                                     <div class="flex items-center space-x-1">
                                         <input type="number" id="limit-hum-max" value="75" class="w-14 text-right font-bold text-slate-800 bg-transparent focus:outline-none">
                                         <span class="font-bold text-slate-700">%</span>
@@ -429,11 +436,11 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-200">
+                    <div class="grid grid-cols-2 gap-3 pt-5 border-t border-slate-200">
                         <button onclick="resetLimits()" class="py-3 px-4 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition shadow-xs">
                             Restaurar Valores
                         </button>
-                        <button onclick="saveLimits()" class="py-3 px-4 rounded-xl bg-teal-700 text-white text-xs font-bold hover:bg-teal-800 transition shadow-md">
+                        <button onclick="saveLimits()" class="py-3 px-4 rounded-xl bg-skyline-600 text-white text-xs font-bold hover:bg-skyline-700 transition shadow-md">
                             Validar y Guardar
                         </button>
                     </div>
@@ -443,46 +450,48 @@
 
             <!-- ================= VIEW 4: NOTIFICACIONES ================= -->
             <div id="view-notifications" class="view-section hidden space-y-4 max-w-3xl mx-auto">
-                <h2 class="text-lg font-bold text-slate-800 mb-1">Historial de Notificaciones</h2>
-                <p class="text-xs text-slate-500 mb-4">Avisos automáticos de heladas y eventos enviados por la pasarela 4G.</p>
+                <div class="mb-2">
+                    <h2 class="text-lg md:text-xl font-bold text-slate-800">Historial de Notificaciones</h2>
+                    <p class="text-xs text-slate-500">Avisos automáticos de heladas y eventos críticos de temperatura enviadas por el gateway LoRa.</p>
+                </div>
 
                 <div class="space-y-3">
-                    <div class="bg-red-50 border border-red-200 rounded-2xl p-4 shadow-xs flex items-start space-x-3">
-                        <div class="bg-red-600 text-white p-2.5 rounded-xl shrink-0">
-                            <i class="fa-solid fa-snowflake"></i>
+                    <div class="bg-red-50 border border-red-200 rounded-2xl p-4 md:p-5 shadow-xs flex items-start space-x-4">
+                        <div class="bg-red-600 text-white p-3 rounded-xl shrink-0 shadow-sm">
+                            <i class="fa-solid fa-snowflake text-base"></i>
                         </div>
                         <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-xs font-bold text-red-900">Alerta Crítica de Helada - Sonda Norte</h3>
-                                <span class="text-[10px] text-red-500 font-semibold">03:52 AM</span>
+                            <div class="flex items-center justify-between flex-wrap gap-1">
+                                <h3 class="text-xs font-bold text-red-900">Alerta Crítica de Helada - Sonda Norte (#04)</h3>
+                                <span class="text-[10px] text-red-500 font-bold bg-white px-2 py-0.5 rounded-md border border-red-200">03:52 AM</span>
                             </div>
-                            <p class="text-xs text-red-700 mt-1">Temperatura húmeda registrada a -1.6°C. Umbral de helada superado.</p>
+                            <p class="text-xs text-red-700 mt-1">Temperatura húmeda registrada a -1.6°C. Umbral crítico de helada superado en sector frutales.</p>
                         </div>
                     </div>
 
-                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 shadow-xs flex items-start space-x-3">
-                        <div class="bg-amber-500 text-white p-2.5 rounded-xl shrink-0">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 md:p-5 shadow-xs flex items-start space-x-4">
+                        <div class="bg-amber-500 text-white p-3 rounded-xl shrink-0 shadow-sm">
+                            <i class="fa-solid fa-triangle-exclamation text-base"></i>
                         </div>
                         <div class="flex-1">
-                            <div class="flex items-center justify-between">
+                            <div class="flex items-center justify-between flex-wrap gap-1">
                                 <h3 class="text-xs font-bold text-amber-900">Advertencia de Descenso Térmico</h3>
-                                <span class="text-[10px] text-amber-600 font-semibold">01:15 AM</span>
+                                <span class="text-[10px] text-amber-600 font-bold bg-white px-2 py-0.5 rounded-md border border-amber-200">01:15 AM</span>
                             </div>
-                            <p class="text-xs text-amber-700 mt-1">Temperatura seca descendiendo rápidamente hacia 2.6°C.</p>
+                            <p class="text-xs text-amber-700 mt-1">Temperatura seca descendiendo rápidamente hacia 2.6°C en Nodo #02.</p>
                         </div>
                     </div>
 
-                    <div class="bg-teal-50 border border-teal-200 rounded-2xl p-4 shadow-xs flex items-start space-x-3">
-                        <div class="bg-teal-700 text-white p-2.5 rounded-xl shrink-0">
-                            <i class="fa-solid fa-battery-full"></i>
+                    <div class="bg-skyline-50 border border-skyline-200 rounded-2xl p-4 md:p-5 shadow-xs flex items-start space-x-4">
+                        <div class="bg-skyline-600 text-white p-3 rounded-xl shrink-0 shadow-sm">
+                            <i class="fa-solid fa-battery-full text-base"></i>
                         </div>
                         <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-xs font-bold text-teal-900">Ciclo Solar Completado</h3>
-                                <span class="text-[10px] text-teal-600 font-semibold">Ayer 18:30</span>
+                            <div class="flex items-center justify-between flex-wrap gap-1">
+                                <h3 class="text-xs font-bold text-skyline-900">Ciclo Solar Completado</h3>
+                                <span class="text-[10px] text-skyline-600 font-bold bg-white px-2 py-0.5 rounded-md border border-skyline-200">Ayer 18:30</span>
                             </div>
-                            <p class="text-xs text-teal-700 mt-1">Baterías 18650 de nodos LoRa recargadas al 100% satisfactoriamente.</p>
+                            <p class="text-xs text-skyline-700 mt-1">Baterías 18650 de nodos LoRa recargadas al 100% mediante paneles fotovoltaicos.</p>
                         </div>
                     </div>
                 </div>
@@ -491,37 +500,43 @@
 
             <!-- ================= VIEW 5: MI CUENTA / GATEWAY ================= -->
             <div id="view-account" class="view-section hidden space-y-6 max-w-2xl mx-auto">
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-6">
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-xs space-y-6">
                     <div class="flex flex-col items-center text-center py-4 border-b border-slate-200">
-                        <div class="w-16 h-16 bg-teal-700 text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-md mb-2">
-                            AG
+                        <div class="w-16 h-16 bg-skyline-600 text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-md mb-2">
+                            AS
                         </div>
-                        <h2 class="font-bold text-slate-800 text-base">Administrador Agrícola</h2>
-                        <p class="text-xs text-slate-500">fundo.norte@telemetria-lora.cl</p>
+                        <h2 class="font-bold text-slate-800 text-base">Administrador aurumsysmeteo</h2>
+                        <p class="text-xs text-slate-500">contacto@aurumsysmeteo.cl</p>
                     </div>
 
-                    <div class="space-y-3">
+                    <div class="space-y-3.5">
                         <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex items-center justify-between text-xs">
                             <div class="flex items-center space-x-3">
-                                <i class="fa-solid fa-tower-broadcast text-teal-700 text-base"></i>
+                                <i class="fa-solid fa-tower-broadcast text-skyline-600 text-lg"></i>
                                 <div>
-                                    <div class="font-bold text-slate-800">Pasarela 4G Gateway LoRa</div>
-                                    <div class="text-slate-400">MQTT Broker: mqtt.telemetria-lora.cl</div>
+                                    <div class="font-bold text-slate-800">Pasarela 4G Gateway LoRa (ESP32)</div>
+                                    <div class="text-slate-400">Frecuencia: 915 MHz | MQTT Broker Activo</div>
                                 </div>
                             </div>
-                            <span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-semibold">Conectado</span>
+                            <span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-bold">Online</span>
                         </div>
 
                         <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex items-center justify-between text-xs">
                             <div class="flex items-center space-x-3">
-                                <i class="fa-brands fa-github text-teal-700 text-base"></i>
+                                <i class="fa-brands fa-github text-skyline-600 text-lg"></i>
                                 <div>
-                                    <div class="font-bold text-slate-800">Repositorio GitHub Oficial</div>
-                                    <div class="text-slate-400">github.com/usuario/sonda-heladas-lora</div>
+                                    <div class="font-bold text-slate-800">Repositorio GitHub</div>
+                                    <div class="text-slate-400">github.com/aurumsysmeteo/sonda-heladas-lora</div>
                                 </div>
                             </div>
-                            <a href="https://github.com" target="_blank" class="px-3 py-1.5 bg-teal-700 text-white rounded-lg font-bold hover:bg-teal-800 transition">Visitar</a>
+                            <a href="https://github.com" target="_blank" class="px-3.5 py-1.5 bg-skyline-600 text-white rounded-lg font-bold hover:bg-skyline-700 transition shadow-sm">Abrir</a>
                         </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-200 text-center">
+                        <button onclick="showMsg('Sesión cerrada correctamente. Reinicie el gateway para reconectar.')" class="px-5 py-2.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 font-bold text-xs transition">
+                            Cerrar Sesión del Sistema
+                        </button>
                     </div>
                 </div>
             </div>
@@ -531,12 +546,12 @@
 
 
     <!-- ================= MOBILE BOTTOM NAVIGATION BAR (Visible solo en Celular) ================= -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 py-2 flex justify-around items-center z-40 shadow-lg">
-        <button onclick="switchTab('home')" class="mobile-tab-btn flex flex-col items-center space-y-1 text-teal-700 font-bold transition p-1" data-tab="home">
-            <div class="bg-teal-100 px-3 py-1 rounded-full mobile-pill transition">
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 py-2 flex justify-around items-center z-40 shadow-2xl">
+        <button onclick="switchTab('home')" class="mobile-tab-btn flex flex-col items-center space-y-1 text-skyline-600 font-bold transition p-1" data-tab="home">
+            <div class="bg-skyline-100 px-3 py-1 rounded-full mobile-pill transition">
                 <i class="fa-solid fa-house text-sm"></i>
             </div>
-            <span class="text-[10px]">Explota...</span>
+            <span class="text-[10px]">Parcela</span>
         </button>
 
         <button onclick="switchTab('sensors')" class="mobile-tab-btn flex flex-col items-center space-y-1 text-slate-400 transition p-1" data-tab="sensors">
@@ -571,14 +586,14 @@
 
 
     <!-- ================= CUSTOM MESSAGE BOX (Sin alert()) ================= -->
-    <div id="msg-modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center space-y-4">
-            <div class="w-12 h-12 bg-teal-100 text-teal-800 rounded-full flex items-center justify-center mx-auto text-xl">
+    <div id="msg-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center space-y-4 border border-slate-100">
+            <div class="w-12 h-12 bg-skyline-100 text-skyline-600 rounded-full flex items-center justify-center mx-auto text-xl shadow-inner">
                 <i class="fa-solid fa-circle-check"></i>
             </div>
-            <h3 class="font-bold text-slate-800 text-base">Aviso del Sistema LoRa</h3>
+            <h3 class="font-bold text-slate-800 text-base">aurumsysmeteo Alerta</h3>
             <p id="msg-text" class="text-xs text-slate-600 leading-relaxed"></p>
-            <button onclick="closeMsgModal()" class="w-full py-2.5 bg-teal-700 text-white font-bold text-xs rounded-xl hover:bg-teal-800 transition">
+            <button onclick="closeMsgModal()" class="w-full py-2.5 bg-skyline-600 text-white font-bold text-xs rounded-xl hover:bg-skyline-700 transition shadow-md">
                 Entendido
             </button>
         </div>
@@ -586,22 +601,22 @@
 
 
     <!-- ================= PLOT SELECTION MODAL ================= -->
-    <div id="plot-modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-end md:items-center justify-center p-0 md:p-4">
-        <div class="bg-white rounded-t-3xl md:rounded-2xl p-5 max-w-md w-full space-y-3 shadow-2xl">
-            <div class="flex justify-between items-center pb-2 border-b border-slate-200">
+    <div id="plot-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-end md:items-center justify-center p-0 md:p-4">
+        <div class="bg-white rounded-t-3xl md:rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl border border-slate-100">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-200">
                 <h3 class="font-bold text-slate-800 text-sm">Seleccionar Explotación Agrícola</h3>
-                <button onclick="togglePlotModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="togglePlotModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="space-y-2 py-2">
-                <div onclick="selectPlot('Mi Parcela (Sector Norte)')" class="p-3 bg-teal-50 border border-teal-200 rounded-xl text-xs font-semibold text-teal-900 cursor-pointer flex justify-between items-center">
-                    <span>Mi Parcela (Sector Norte)</span>
-                    <i class="fa-solid fa-check text-teal-700"></i>
+            <div class="space-y-2.5 py-1">
+                <div onclick="selectPlot('Mi Parcela (Sector Norte - SHT30)')" class="p-3.5 bg-skyline-50 border border-skyline-200 rounded-xl text-xs font-bold text-skyline-900 cursor-pointer flex justify-between items-center shadow-xs">
+                    <span>Mi Parcela (Sector Norte - SHT30)</span>
+                    <i class="fa-solid fa-check text-skyline-600"></i>
                 </div>
-                <div onclick="selectPlot('Huerto Manzanos (Sur)')" class="p-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700 cursor-pointer hover:bg-slate-50">
-                    <span>Huerto Manzanos (Sur)</span>
+                <div onclick="selectPlot('Huerto Manzanos (Sur - SHT30)')" class="p-3.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700 cursor-pointer hover:bg-slate-50 transition">
+                    <span>Huerto Manzanos (Sur - SHT30)</span>
                 </div>
-                <div onclick="selectPlot('Viñedo Experimental LoRa')" class="p-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700 cursor-pointer hover:bg-slate-50">
-                    <span>Viñedo Experimental LoRa</span>
+                <div onclick="selectPlot('Viñedo Experimental LoRa (Este)')" class="p-3.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700 cursor-pointer hover:bg-slate-50 transition">
+                    <span>Viñedo Experimental LoRa (Este)</span>
                 </div>
             </div>
         </div>
@@ -618,37 +633,37 @@
 
         // Tab Switching Logic for both Desktop and Mobile
         function switchTab(tabId) {
-            // Hide all view sections
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.getElementById(`view-${tabId}`).classList.remove('hidden');
-            window.scrollTo(0, 0);
+            const mainContainer = document.querySelector('main');
+            if(mainContainer) mainContainer.scrollTop = 0;
 
             // Update Desktop Sidebar buttons
             document.querySelectorAll('.sidebar-btn').forEach(btn => {
-                btn.classList.remove('bg-teal-800', 'text-white');
-                btn.classList.add('text-teal-200', 'hover:bg-teal-900');
+                btn.classList.remove('bg-skyline-800', 'text-white');
+                btn.classList.add('text-skyline-200', 'hover:bg-skyline-900');
                 if(btn.dataset.tab === tabId) {
-                    btn.classList.add('bg-teal-800', 'text-white');
-                    btn.classList.remove('text-teal-200', 'hover:bg-teal-900');
+                    btn.classList.add('bg-skyline-800', 'text-white');
+                    btn.classList.remove('text-skyline-200', 'hover:bg-skyline-900');
                 }
             });
 
             // Update Mobile Bottom Nav buttons
             document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
-                btn.classList.remove('text-teal-700', 'font-bold');
+                btn.classList.remove('text-skyline-600', 'font-bold');
                 btn.classList.add('text-slate-400');
                 const pill = btn.querySelector('.mobile-pill');
-                if(pill) pill.classList.remove('bg-teal-100');
+                if(pill) pill.classList.remove('bg-skyline-100');
 
                 if(btn.dataset.tab === tabId) {
-                    btn.classList.add('text-teal-700', 'font-bold');
+                    btn.classList.add('text-skyline-600', 'font-bold');
                     btn.classList.remove('text-slate-400');
-                    if(pill) pill.classList.add('bg-teal-100');
+                    if(pill) pill.classList.add('bg-skyline-100');
                 }
             });
         }
 
-        // Initialize Main Frost Chart
+        // Initialize Main Frost Chart with Chart.js
         function initHomeChart() {
             const ctx = document.getElementById('homeFrostChart').getContext('2d');
             homeChartInstance = new Chart(ctx, {
@@ -659,18 +674,18 @@
                         {
                             label: 'Temp. Húmeda (°C)',
                             data: [3.1, 2.0, 0.5, -1.0, -1.6, 0.2, 1.5, 2.5, 3.2],
-                            borderColor: '#4f46e5', // Indigo
-                            backgroundColor: 'rgba(79, 70, 229, 0.08)',
-                            borderWidth: 2.5,
+                            borderColor: '#0284c7', // Sky blue
+                            backgroundColor: 'rgba(2, 132, 199, 0.08)',
+                            borderWidth: 3,
                             tension: 0.3,
                             fill: true
                         },
                         {
                             label: 'Temp. Seca (°C)',
                             data: [5.0, 2.5, 0.0, -1.8, -2.6, 1.0, 2.0, 2.5, 3.0],
-                            borderColor: '#0f766e', // Teal
-                            backgroundColor: 'rgba(15, 118, 110, 0.08)',
-                            borderWidth: 2.5,
+                            borderColor: '#10b981', // Emerald
+                            backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                            borderWidth: 3,
                             tension: 0.3,
                             fill: true
                         }
@@ -680,7 +695,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'top', labels: { font: { size: 11 } } }
+                        legend: { position: 'top', labels: { font: { size: 12, family: 'Inter' } } }
                     },
                     scales: {
                         y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
@@ -693,18 +708,18 @@
         // Update Chart Time range
         function updateHomeChart(range) {
             document.querySelectorAll('.time-btn-home').forEach(b => {
-                b.classList.remove('bg-white', 'shadow-xs', 'text-teal-800', 'font-bold');
+                b.classList.remove('bg-white', 'shadow-xs', 'text-skyline-800', 'font-bold');
                 b.classList.add('text-slate-600');
             });
-            event.target.classList.add('bg-white', 'shadow-xs', 'text-teal-800', 'font-bold');
-            showMsg(`Gráfico actualizado al intervalo: ${range}`);
+            event.target.classList.add('bg-white', 'shadow-xs', 'text-skyline-800', 'font-bold');
+            showMsg(`aurumsysmeteo: Gráfico actualizado al intervalo de ${range}`);
         }
 
         // Save & Reset Limits
         function saveLimits() {
             const minT = document.getElementById('limit-temp-min').value;
             const maxT = document.getElementById('limit-temp-max').value;
-            showMsg(`Límites de helada actualizados correctamente:\nTemp Mín: ${minT}°C | Máx: ${maxT}°C`);
+            showMsg(`¡Umbrales de helada validados y guardados en el Gateway LoRa!\nTemp Mín: ${minT}°C | Máx: ${maxT}°C`);
         }
 
         function resetLimits() {
@@ -714,7 +729,7 @@
             document.getElementById('limit-warn-max').value = 29;
             document.getElementById('limit-hum-min').value = 50;
             document.getElementById('limit-hum-max').value = 75;
-            showMsg('Valores restaurados a la configuración inicial.');
+            showMsg('Valores restaurados a la configuración inicial por defecto.');
         }
 
         // Plot Modal
@@ -725,7 +740,7 @@
         function selectPlot(name) {
             document.getElementById('current-plot-name').textContent = name;
             togglePlotModal();
-            showMsg(`Cargando datos telemetricos para: ${name}`);
+            showMsg(`Cargando telemetría LoRa para: ${name}`);
         }
 
         // Custom Message Box
@@ -739,7 +754,7 @@
         }
 
         function refreshData() {
-            showMsg('Pasarela LoRa 4G sincronizada. Lecturas de nodos SHT30 actualizadas.');
+            showMsg('Pasarela LoRa 4G sincronizada. Lecturas de nodos SHT30 actualizadas en tiempo real.');
         }
     </script>
 </body>
